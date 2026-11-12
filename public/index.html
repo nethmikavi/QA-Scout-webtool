@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Scout - Website Quality Auditor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="logo">QA <strong>Scout</strong></div>
+        <nav class="nav-links">
+            <a href="#audit" class="nav-tab active" data-target="audit-view">Website Audit</a>
+            <a href="#history" class="nav-tab" data-target="history-view">Scan History</a>
+            <a href="#checklist" class="nav-tab" data-target="checklist-view">QA Checklist</a>
+            <a href="#api" class="nav-tab" data-target="api-view">API Docs</a>
+            <a href="#opensource" class="nav-tab" data-target="opensource-view">Open Source</a>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="hero-section">
+        <div class="container">
+            
+            <!-- 1. Website Audit View (Default) -->
+            <div id="audit-view" class="view-panel">
+                <header style="border: none; margin-bottom: 20px; padding: 0;">
+                    <h1>Audit your site for critical issues in one click</h1>
+                    <p>Scan your website for broken links, security headers, accessibility, SEO, and performance issues.</p>
+                </header>
+
+                <div class="search-box">
+                    <input type="url" id="urlInput" placeholder="https://example.com" required>
+                    <button id="scanBtn">Run QA Scan</button>
+                </div>
+
+                <div id="loading" class="hidden">
+                    <div class="spinner"></div>
+                    <p style="color: #8b949e; margin-top: 10px;">Scanning website, please wait...</p>
+                </div>
+
+                <div id="results" class="hidden">
+                    <h2 style="margin-bottom: 15px;">Scan Results</h2>
+                    <div id="output"></div>
+                </div>
+            </div>
+
+            <!-- 2. Scan History View -->
+            <div id="history-view" class="view-panel hidden" style="text-align: left;">
+                <h2>Scan History</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Review past audits and generated report scores stored locally.</p>
+                <div id="historyOutput" style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d;">
+                    <p style="color: #8b949e;">No recent scan history found. Run your first audit to see it logged here!</p>
+                </div>
+            </div>
+
+            <!-- 3. QA Checklist View -->
+            <div id="checklist-view" class="view-panel hidden" style="text-align: left;">
+                <h2>QA Checklist Reference</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Standards verified during every single-pass QA Scout scan:</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
+                        <strong style="color: #3fb950;">🔗 Links Module:</strong> Crawls same-domain anchor tags, checks HTTP status codes, and detects broken links or redirect loops.
+                    </div>
+                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
+                        <strong style="color: #3fb950;">🛡️ Security Headers:</strong> Audits HTTPS enforcement, HSTS, Content Security Policy (CSP), and X-Frame-Options headers.
+                    </div>
+                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
+                        <strong style="color: #3fb950;">📈 SEO Analysis:</strong> Validates presence of title tags, meta descriptions, canonical links, and Open Graph tags.
+                    </div>
+                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
+                        <strong style="color: #3fb950;">♿ Accessibility (A11y):</strong> Flags missing image alt attributes, unlabelled form inputs, and heading structure issues.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. API Docs View -->
+            <div id="api-view" class="view-panel hidden" style="text-align: left;">
+                <h2>API Documentation</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Integrate QA Scout automated audits programmatically into your CI/CD pipeline.</p>
+                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d;">
+                    <h3 style="margin-bottom: 10px; color: #fff;">Endpoint: <code style="color: #8b5cf6;">POST /api/scan</code></h3>
+                    <p style="color: #8b949e; margin-bottom: 15px;">Sends a target URL to the Node.js backend scanner and returns a structured JSON report.</p>
+                    <pre style="background: #0d1117; padding: 15px; border-radius: 6px; color: #e6edf3; overflow-x: auto; font-size: 13px;"><code>curl -X POST http://localhost:3000/api/scan \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com"}'</code></pre>
+                </div>
+            </div>
+
+            <!-- 5. Open Source View -->
+            <div id="opensource-view" class="view-panel hidden" style="text-align: left;">
+                <h2>Free & Open Source</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">QA Scout is built for developers, QA interns, and small businesses with zero paywalls.</p>
+                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; line-height: 1.6; color: #c9d1d9;">
+                    <p>Designed as a lightweight, modular quality engineering utility utilizing:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Backend:</strong> Node.js, Express, Cheerio, Helmet.js</li>
+                        <li><strong>Storage:</strong> SQLite for local report caching</li>
+                        <li><strong>Frontend:</strong> Modern responsive dark SaaS grid layout</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

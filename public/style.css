@@ -1,0 +1,280 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* Top Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    border-bottom: 1px solid #30363d;
+    background: #0d1117;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 400;
+    color: #ffffff;
+}
+
+.logo strong {
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: #8b949e;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+}
+
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: #ffffff;
+    color: #0d1117;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #e2e8f0;
+}
+
+/* Main Container */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+    width: 100%;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-size: 36px;
+    letter-spacing: -1px;
+}
+
+header p {
+    color: #8b949e;
+    font-size: 16px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 16px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #ffffff;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: #8b5cf6;
+}
+
+.search-box input::placeholder {
+    color: #6e7681;
+}
+
+.search-box button {
+    padding: 14px 28px;
+    font-size: 16px;
+    background-color: #ffffff;
+    color: #0d1117;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-box button:hover {
+    background-color: #e2e8f0;
+}
+
+.hidden {
+    display: none;
+}
+
+#loading {
+    text-align: center;
+    font-style: italic;
+    color: #8b949e;
+    margin: 20px 0;
+}
+
+#results {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #30363d;
+}
+
+#results h2 {
+    color: #ffffff;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.result-card {
+    background: #21262d;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    border-left: 4px solid #3fb950;
+}
+
+.issue-card {
+    background: #161b22 !important;
+    border: 1px solid #30363d !important;
+    border-left: 4px solid #f0883e !important;
+    color: #e6edf3;
+    border-radius: 6px !important;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.5);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    color: #8b949e;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #ffffff;
+}
+
+.modal-content h2 {
+    margin-bottom: 10px;
+    font-size: 22px;
+    color: #ffffff;
+}
+
+.modal-content p {
+    color: #8b949e;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+#loginForm input {
+    width: 100%;
+    padding: 12px 15px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 15px;
+    margin-bottom: 15px;
+    outline: none;
+}
+
+#loginForm input:focus {
+    border-color: #8b5cf6;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #8b5cf6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
