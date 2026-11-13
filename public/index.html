@@ -57,21 +57,36 @@
 
             <!-- 3. QA Checklist View -->
             <div id="checklist-view" class="view-panel hidden" style="text-align: left;">
-                <h2>QA Checklist Reference</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Standards verified during every single-pass QA Scout scan:</p>
+                <h2>Interactive QA Audit Checklist</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Use this interactive checklist during your manual or automated site evaluations:</p>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
-                        <strong style="color: #3fb950;">🔗 Links Module:</strong> Crawls same-domain anchor tags, checks HTTP status codes, and detects broken links or redirect loops.
-                    </div>
-                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
-                        <strong style="color: #3fb950;">🛡️ Security Headers:</strong> Audits HTTPS enforcement, HSTS, Content Security Policy (CSP), and X-Frame-Options headers.
-                    </div>
-                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
-                        <strong style="color: #3fb950;">📈 SEO Analysis:</strong> Validates presence of title tags, meta descriptions, canonical links, and Open Graph tags.
-                    </div>
-                    <div style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d;">
-                        <strong style="color: #3fb950;">♿ Accessibility (A11y):</strong> Flags missing image alt attributes, unlabelled form inputs, and heading structure issues.
-                    </div>
+                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
+                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
+                        <div>
+                            <strong style="color: #3fb950;">🔗 Links & Navigation:</strong> Verify all primary navigation links return HTTP 200 OK, check for dead anchor tags, and ensure no redirect loops exist.
+                        </div>
+                    </label>
+
+                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
+                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
+                        <div>
+                            <strong style="color: #3fb950;">🛡️ Security Headers:</strong> Validate HSTS enforcement, Content Security Policy (CSP), X-Frame-Options, and secure cookie attributes.
+                        </div>
+                    </label>
+
+                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
+                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
+                        <div>
+                            <strong style="color: #3fb950;">📈 SEO Optimization:</strong> Check meta title uniqueness, description length, Open Graph tags for social sharing, and robots.txt configuration.
+                        </div>
+                    </label>
+
+                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
+                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
+                        <div>
+                            <strong style="color: #3fb950;">♿ Accessibility (A11y):</strong> Audit images for descriptive `alt` text, confirm form inputs have associated labels, and test keyboard navigation focus states.
+                        </div>
+                    </label>
                 </div>
             </div>
 
@@ -82,7 +97,7 @@
                 <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d;">
                     <h3 style="margin-bottom: 10px; color: #fff;">Endpoint: <code style="color: #8b5cf6;">POST /api/scan</code></h3>
                     <p style="color: #8b949e; margin-bottom: 15px;">Sends a target URL to the Node.js backend scanner and returns a structured JSON report.</p>
-                    <pre style="background: #0d1117; padding: 15px; border-radius: 6px; color: #e6edf3; overflow-x: auto; font-size: 13px;"><code>curl -X POST http://localhost:3000/api/scan \
+                    <pre style="background: #0d1117; padding: 15px; border-radius: 6px; color: #e6edf3; overflow-x: auto; font-size: 13px;"><code id="apiCurlSnippet">curl -X POST http://localhost:3000/api/scan \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com"}'</code></pre>
                 </div>
@@ -105,6 +120,6 @@
         </div>
     </main>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
 </body>
 </html>
