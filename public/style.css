@@ -12,7 +12,7 @@ body {
     display: flex;
     flex-direction: column;
     background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 
@@ -110,6 +110,36 @@ header h1 {
 header p {
     color: #8b949e;
     font-size: 16px;
+}
+
+/* Status Summary Banner */
+.status-summary-banner {
+    background: #161b22;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    box-shadow: inset 0 0 10px rgba(35, 134, 54, 0.2);
+    animation: descriptionPulse 3s ease-in-out infinite;
+}
+
+@keyframes descriptionPulse {
+    0% {
+        border-color: rgba(35, 134, 54, 0.4);
+        box-shadow: inset 0 0 10px rgba(35, 134, 54, 0.2);
+    }
+    50% {
+        border-color: rgba(35, 134, 54, 0.8);
+        box-shadow: inset 0 0 15px rgba(35, 134, 54, 0.4);
+    }
+    100% {
+        border-color: rgba(35, 134, 54, 0.4);
+        box-shadow: inset 0 0 10px rgba(35, 134, 54, 0.2);
+    }
 }
 
 .search-box {
