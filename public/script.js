@@ -34,13 +34,9 @@ navTabs.forEach(tab => {
             loadScanHistory();
         }
 
-        // Dynamically update API curl snippet when the API Docs tab is clicked
-        if (target === 'api-view') {
-            const apiCurlSnippet = document.getElementById('apiCurlSnippet');
-            if (apiCurlSnippet) {
-                const currentDomain = window.location.origin;
-                apiCurlSnippet.textContent = `curl -X POST ${currentDomain}/api/scan \\\n  -H "Content-Type: application/json" \\\n  -d '{"url": "https://example.com"}'`;
-            }
+        // Load comparison dropdowns when the comparison tab is clicked
+        if (target === 'comparison-view') {
+            loadComparisonDropdowns();
         }
     });
 });
@@ -54,13 +50,9 @@ window.addEventListener('DOMContentLoaded', () => {
         if (targetId === 'history-view') {
             loadScanHistory();
         }
-    }
-
-    // Dynamically update API Docs curl example with the current domain/host on load
-    const apiCurlSnippet = document.getElementById('apiCurlSnippet');
-    if (apiCurlSnippet) {
-        const currentDomain = window.location.origin;
-        apiCurlSnippet.textContent = `curl -X POST ${currentDomain}/api/scan \\\n  -H "Content-Type: application/json" \\\n  -d '{"url": "https://example.com"}'`;
+        if (targetId === 'comparison-view') {
+            loadComparisonDropdowns();
+        }
     }
 });
 
@@ -108,6 +100,75 @@ async function loadScanHistory() {
         historyOutput.innerHTML = '<p style="color: #f85149;">Failed to load scan history from database.</p>';
     }
 }
+
+// Load reports into Comparison Dropdowns
+async function loadComparisonDropdowns() {
+    const selectA = document.getElementById('compareScanA');
+    const selectB = document.getElementById('compareScanB');
+    if (!selectA || !selectB) return;
+
+    try {
+        const response = await fetch('/api/reports');
+        const reports = await response.json();
+
+        if (!response.ok || reports.length === 0) {
+            selectA.innerHTML = '<option value="">No history available</option>';
+            selectB.innerHTML = '<option value="">No history available</option>';
+            return;
+        }
+
+        let optionsHtml = '';
+        reports.forEach((r) => {
+            optionsHtml += `<option value='${JSON.stringify(r)}'>${r.url} (${r.score}/100 - ${new Date(r.created_at).toLocaleDateString()})</option>`;
+        });
+
+        selectA.innerHTML = optionsHtml;
+        selectB.innerHTML = optionsHtml;
+        if (reports.length > 1) selectB.selectedIndex = 1;
+    } catch (err) {
+        selectA.innerHTML = '<option value="">Failed to load data</option>';
+        selectB.innerHTML = '<option value="">Failed to load data</option>';
+    }
+}
+
+// Comparison Execution Logic
+document.getElementById('runComparisonBtn')?.addEventListener('click', () => {
+    const rawA = document.getElementById('compareScanA').value;
+    const rawB = document.getElementById('compareScanB').value;
+    const output = document.getElementById('comparisonOutput');
+
+    if (!rawA || !rawB) {
+        alert('Please select two valid scans to compare.');
+        return;
+    }
+
+    const scanA = JSON.parse(rawA);
+    const scanB = JSON.parse(rawB);
+
+    const scoreDiff = scanB.score - scanA.score;
+    const diffColor = scoreDiff >= 0 ? '#3fb950' : '#f85149';
+
+    output.innerHTML = `
+        <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; color: #c9d1d9;">
+            <h3 style="margin-bottom: 15px; color: #fff;">Comparison Summary</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="background: #0d1117; padding: 15px; border-radius: 6px;">
+                    <span style="color: #8b949e; font-size: 12px;">Baseline (A)</span>
+                    <h4 style="color: #58a6ff; margin: 5px 0;">${scanA.url}</h4>
+                    <p>Score: <strong>${scanA.score}/100</strong></p>
+                </div>
+                <div style="background: #0d1117; padding: 15px; border-radius: 6px;">
+                    <span style="color: #8b949e; font-size: 12px;">Recent (B)</span>
+                    <h4 style="color: #58a6ff; margin: 5px 0;">${scanB.url}</h4>
+                    <p>Score: <strong>${scanB.score}/100</strong></p>
+                </div>
+            </div>
+            <div style="background: #0d1117; padding: 15px; border-radius: 6px; text-align: center;">
+                <p style="margin: 0; font-size: 16px;">Net Score Change: <strong style="color: ${diffColor};">${scoreDiff > 0 ? '+' : ''}${scoreDiff} Points</strong></p>
+            </div>
+        </div>
+    `;
+});
 
 // Scan Logic
 document.getElementById('scanBtn').addEventListener('click', async () => {
@@ -211,7 +272,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
         }
     } catch (err) {
         loadingDiv.classList.add('hidden');
-        resultsDiv.classList.add('hidden'); // Fixed syntax
+        resultsDiv.classList.add('hidden');
         outputDiv.innerHTML = `<p style="color: red;">Failed to connect to the server.</p>`;
     }
 });

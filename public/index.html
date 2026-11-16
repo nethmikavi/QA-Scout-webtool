@@ -14,7 +14,7 @@
             <a href="#audit" class="nav-tab active" data-target="audit-view">Website Audit</a>
             <a href="#history" class="nav-tab" data-target="history-view">Scan History</a>
             <a href="#checklist" class="nav-tab" data-target="checklist-view">QA Checklist</a>
-            <a href="#api" class="nav-tab" data-target="api-view">API Docs</a>
+            <a href="#comparison" class="nav-tab" data-target="comparison-view">Scan Comparison</a>
             <a href="#opensource" class="nav-tab" data-target="opensource-view">Open Source</a>
         </nav>
     </header>
@@ -90,30 +90,57 @@
                 </div>
             </div>
 
-            <!-- 4. API Docs View -->
-            <div id="api-view" class="view-panel hidden" style="text-align: left;">
-                <h2>API Documentation</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Integrate QA Scout automated audits programmatically into your CI/CD pipeline.</p>
-                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d;">
-                    <h3 style="margin-bottom: 10px; color: #fff;">Endpoint: <code style="color: #8b5cf6;">POST /api/scan</code></h3>
-                    <p style="color: #8b949e; margin-bottom: 15px;">Sends a target URL to the Node.js backend scanner and returns a structured JSON report.</p>
-                    <pre style="background: #0d1117; padding: 15px; border-radius: 6px; color: #e6edf3; overflow-x: auto; font-size: 13px;"><code id="apiCurlSnippet">curl -X POST http://localhost:3000/api/scan \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com"}'</code></pre>
+            <!-- 4. Scan Comparison View -->
+            <div id="comparison-view" class="view-panel hidden" style="text-align: left;">
+                <h2>Scan Comparison (Before vs. After)</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Select two past audits to evaluate score improvements and verify fixed issues.</p>
+                
+                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; color: #8b949e; margin-bottom: 5px; font-size: 13px;">Baseline Scan (Before):</label>
+                        <select id="compareScanA" style="width: 100%; padding: 8px; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px;">
+                            <option value="">Load history first...</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; color: #8b949e; margin-bottom: 5px; font-size: 13px;">Recent Scan (After):</label>
+                        <select id="compareScanB" style="width: 100%; padding: 8px; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px;">
+                            <option value="">Load history first...</option>
+                        </select>
+                    </div>
+                    <div style="align-self: flex-end;">
+                        <button id="runComparisonBtn" style="padding: 9px 16px; background: #2ea043; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Compare Scans</button>
+                    </div>
+                </div>
+
+                <div id="comparisonOutput">
+                    <p style="color: #8b949e;">Select two scans above and click compare to view progress metrics.</p>
                 </div>
             </div>
 
-            <!-- 5. Open Source View -->
+            <!-- 5. Open Source & About View -->
             <div id="opensource-view" class="view-panel hidden" style="text-align: left;">
-                <h2>Free & Open Source</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">QA Scout is built for developers, QA interns, and small businesses with zero paywalls.</p>
-                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; line-height: 1.6; color: #c9d1d9;">
-                    <p>Designed as a lightweight, modular quality engineering utility utilizing:</p>
-                    <ul style="margin-left: 20px; margin-top: 10px;">
-                        <li><strong>Backend:</strong> Node.js, Express, Cheerio, Helmet.js</li>
-                        <li><strong>Storage:</strong> SQLite for local report caching</li>
-                        <li><strong>Frontend:</strong> Modern responsive dark SaaS grid layout</li>
-                    </ul>
+                <h2>About QA Scout & Open Source</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">A lightweight, zero-paywall website quality engineering utility built for developers, QA interns, and small businesses.</p>
+                
+                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 20px;">
+                    <h3 style="color: #fff; margin-bottom: 12px; font-size: 16px;">🚀 How to Use QA Scout in 3 Easy Steps</h3>
+                    <ol style="margin-left: 20px; color: #c9d1d9; font-size: 14px; line-height: 1.8;">
+                        <li><strong>Run Website Audit:</strong> Enter your public URL in the audit box to scan for broken links, security headers, SEO, and accessibility issues.</li>
+                        <li><strong>Review & Export Reports:</strong> Check your overall score out of 100, read actionable fix instructions, and export structured reports as JSON or CSV.</li>
+                        <li><strong>Track & Compare Progress:</strong> Monitor past audits in Scan History or evaluate score improvements side-by-side using the Scan Comparison tool.</li>
+                    </ol>
+                </div>
+
+                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <span style="display: inline-block; padding: 4px 10px; background: #238636; color: #fff; border-radius: 4px; font-size: 12px; font-weight: 600; margin-right: 10px;">MIT License</span>
+                        <span style="color: #8b949e; font-size: 13px;">Built by Nethmi Kavindya (WhiteCoder QA Internship)</span>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <a href="mailto:nethmijayasingha3@gmail.com" style="color: #58a6ff; text-decoration: none; font-weight: 600; font-size: 14px;">✉️ Contact Creator</a>
+                        <a href="https://github.com/nethmikavi/QA-Scout-webtool" target="_blank" style="color: #58a6ff; text-decoration: none; font-weight: 600; font-size: 14px;">⭐ GitHub Repository &rarr;</a>
+                    </div>
                 </div>
             </div>
 
