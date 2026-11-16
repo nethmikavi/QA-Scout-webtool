@@ -1,7 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const checkLinks = require('./scanners/linkChecker');
@@ -12,7 +11,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security & Middleware
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: false
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -26,25 +27,23 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// SQLite Database Setup (Vercel-compatible /tmp directory check)
-const dbPath = process.env.VERCEL 
-    ? path.join('/tmp', 'database.sqlite') 
-    : path.resolve(__dirname, '../database.sqlite');
-
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database', err.message);
-    } else {
-        console.log('Connected to the SQLite database at:', dbPath);
-        db.run(`CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            url TEXT,
-            score INTEGER,
-            data TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
+// In-Memory Storage for Serverless Compatibility on Vercel
+let reports = [
+    {
+        id: 1,
+        url: 'https://example.com',
+        score: 85,
+        data: {
+            url: 'https://example.com',
+            score: 85,
+            issues: [
+                { category: 'Security', severity: 'Medium', message: 'Missing Content-Security-Policy header' }
+            ]
+        },
+        created_at: new Date().toISOString()
     }
-});
+];
+let nextId = 2;
 
 // Real Scan API Route
 app.post('/api/scan', async (req, res) => {
@@ -71,51 +70,55 @@ app.post('/api/scan', async (req, res) => {
             issues: allIssues
         };
 
-        // Save report into SQLite database
-        db.run(
-            `INSERT INTO reports (url, score, data) VALUES (?, ?, ?)`,
-            [url, score, JSON.stringify(scanResult)],
-            function (err) {
-                if (err) {
-                    console.error('Error saving report', err.message);
-                }
-            }
-        );
+        // Save report into memory
+        reports.unshift({
+            id: nextId++,
+            url,
+            score,
+            data: scanResult,
+            created_at: new Date().toISOString()
+        });
+
+        // Keep last 20 reports
+        if (reports.length > 20) reports.pop();
 
         res.json(scanResult);
     } catch (err) {
+        console.error('Scan error:', err);
         res.status(500).json({ error: 'Failed to scan website. Please check the URL.' });
     }
 });
 
 // Fetch Scan History API Route (For Scan History Tab)
 app.get('/api/reports', (req, res) => {
-    db.all(`SELECT id, url, score, created_at FROM reports ORDER BY created_at DESC LIMIT 20`, [], (err, rows) => {
-        if (err) {
-            console.error('Database Error:', err.message);
-            return res.status(500).json({ error: 'Failed to load scan history' });
-        }
-        res.json(rows);
-    });
+    const summaryList = reports.map(({ id, url, score, created_at }) => ({
+        id,
+        url,
+        score,
+        created_at
+    }));
+    res.json(summaryList);
 });
 
 // Fetch Single Report by ID API Route
 app.get('/api/reports/:id', (req, res) => {
-    db.get(`SELECT * FROM reports WHERE id = ?`, [req.params.id], (err, row) => {
-        if (err || !row) {
-            return res.status(404).json({ error: 'Report not found' });
-        }
-        res.json({
-            id: row.id,
-            url: row.url,
-            score: row.score,
-            data: JSON.parse(row.data),
-            created_at: row.created_at
-        });
-    });
+    const report = reports.find(r => r.id === parseInt(req.params.id, 10));
+    if (!report) {
+        return res.status(404).json({ error: 'Report not found' });
+    }
+    res.json(report);
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`QA Scout server is running on http://localhost:${PORT}`);
+// Fallback route to serve index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
+
+// Start Server locally; export app for Vercel serverless
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`QA Scout server is running on http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
