@@ -3,6 +3,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
+const { normalizeUrl, assertPublicUrl, fetchPage } = require('./scanners/fetchPage');
 const checkLinks = require('./scanners/linkChecker');
 const checkSecurity = require('./scanners/securityChecker');
 const checkSeoAndAccessibility = require('./scanners/seoAccessibilityChecker');
@@ -10,111 +11,89 @@ const checkSeoAndAccessibility = require('./scanners/seoAccessibilityChecker');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security & Middleware
-app.use(helmet({
-    contentSecurityPolicy: false
-}));
+// Vercel sits behind a proxy; required so rate-limiting can read the real client IP.
+app.set('trust proxy', 1);
+
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve frontend static files
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Rate Limiter
-const limiter = rateLimit({
+app.use('/api', rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100
-});
-app.use(limiter);
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false
+}));
 
-// In-Memory Storage for Serverless Compatibility on Vercel
-let reports = [
-    {
-        id: 1,
-        url: 'https://example.com',
-        score: 85,
-        data: {
-            url: 'https://example.com',
-            score: 85,
-            issues: [
-                { category: 'Security', severity: 'Medium', message: 'Missing Content-Security-Policy header' }
-            ]
-        },
-        created_at: new Date().toISOString()
-    }
-];
-let nextId = 2;
+const SEVERITY_PENALTY = { Critical: 25, Major: 12, Medium: 8, Minor: 5 };
 
-// Real Scan API Route
+function calculateScore(issues) {
+    const penalty = issues.reduce((sum, i) => sum + (SEVERITY_PENALTY[i.severity] || 5), 0);
+    return Math.max(0, 100 - penalty);
+}
+
+// NOTE: Scan history is stored in the user's browser (localStorage).
+// Vercel serverless functions have no persistent memory, so server-side
+// in-memory history would randomly appear empty between requests.
 app.post('/api/scan', async (req, res) => {
-    const { url } = req.body;
-    if (!url) {
-        return res.status(400).json({ error: 'URL is required' });
+    let url;
+    try {
+        url = normalizeUrl(req.body && req.body.url);
+        await assertPublicUrl(url);
+    } catch (err) {
+        return res.status(400).json({ error: err.message });
+    }
+
+    let page;
+    try {
+        page = await fetchPage(url);
+    } catch (err) {
+        console.error('Fetch error:', err.message);
+        return res.status(502).json({
+            error: `Could not reach ${url} (${err.code || err.message}). Check that the site is online and public.`
+        });
     }
 
     try {
-        // Run scanner modules
-        const linkIssues = await checkLinks(url);
-        const securityIssues = await checkSecurity(url);
-        const seoA11yIssues = await checkSeoAndAccessibility(url);
+        const [linkIssues, securityIssues, seoA11yIssues] = await Promise.all([
+            checkLinks(page).catch(e => { console.error('linkChecker:', e.message); return []; }),
+            Promise.resolve(checkSecurity(page)),
+            Promise.resolve(checkSeoAndAccessibility(page))
+        ]);
 
-        const allIssues = [...linkIssues, ...securityIssues, ...seoA11yIssues];
-        
-        // Calculate basic score out of 100
-        let score = 100 - (allIssues.length * 15);
-        if (score < 20) score = 20;
+        const issues = [...linkIssues, ...securityIssues, ...seoA11yIssues];
 
-        const scanResult = {
+        if (page.status >= 400) {
+            issues.unshift({
+                type: 'Link',
+                severity: 'Critical',
+                message: `The page itself returned HTTP status ${page.status}.`,
+                fix: 'Make sure the URL is correct and publicly accessible.'
+            });
+        }
+
+        res.json({
             url,
-            score,
-            issues: allIssues
-        };
-
-        // Save report into memory
-        reports.unshift({
-            id: nextId++,
-            url,
-            score,
-            data: scanResult,
-            created_at: new Date().toISOString()
+            score: calculateScore(issues),
+            scannedAt: new Date().toISOString(),
+            issues
         });
-
-        // Keep last 20 reports
-        if (reports.length > 20) reports.pop();
-
-        res.json(scanResult);
     } catch (err) {
         console.error('Scan error:', err);
         res.status(500).json({ error: 'Failed to scan website. Please check the URL.' });
     }
 });
 
-// Fetch Scan History API Route (For Scan History Tab)
-app.get('/api/reports', (req, res) => {
-    const summaryList = reports.map(({ id, url, score, created_at }) => ({
-        id,
-        url,
-        score,
-        created_at
-    }));
-    res.json(summaryList);
-});
+app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-// Fetch Single Report by ID API Route
-app.get('/api/reports/:id', (req, res) => {
-    const report = reports.find(r => r.id === parseInt(req.params.id, 10));
-    if (!report) {
-        return res.status(404).json({ error: 'Report not found' });
-    }
-    res.json(report);
-});
+app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found' }));
 
-// Fallback route to serve index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Start Server locally; export app for Vercel serverless
 if (!process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`QA Scout server is running on http://localhost:${PORT}`);

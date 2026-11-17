@@ -1,0 +1,90 @@
+const axios = require('axios');
+const dns = require('dns').promises;
+const net = require('net');
+
+const USER_AGENT = 'Mozilla/5.0 (compatible; QAScoutBot/1.1; +https://github.com/nethmikavi/QA-Scout-webtool)';
+
+/** Add https:// when the user typed "example.com" and validate the result. */
+function normalizeUrl(input) {
+    let value = String(input || '').trim();
+    if (!value) throw new Error('URL is required');
+    if (!/^https?:\/\//i.test(value)) value = 'https://' + value;
+    let parsed;
+    try {
+        parsed = new URL(value);
+    } catch (e) {
+        throw new Error('Invalid URL format');
+    }
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+        throw new Error('Only http and https URLs are supported');
+    }
+    return parsed.toString();
+}
+
+function isPrivateIp(ip) {
+    if (net.isIPv4(ip)) {
+        const [a, b] = ip.split('.').map(Number);
+        return (
+            a === 10 || a === 127 || a === 0 ||
+            (a === 169 && b === 254) ||
+            (a === 172 && b >= 16 && b <= 31) ||
+            (a === 192 && b === 168) ||
+            (a === 100 && b >= 64 && b <= 127)
+        );
+    }
+    if (net.isIPv6(ip)) {
+        const v = ip.toLowerCase();
+        return v === '::1' || v === '::' || v.startsWith('fc') || v.startsWith('fd') ||
+            v.startsWith('fe80') || v.startsWith('::ffff:127.') || v.startsWith('::ffff:10.') ||
+            v.startsWith('::ffff:192.168.');
+    }
+    return true;
+}
+
+/** Block localhost / private network targets (SSRF protection). */
+async function assertPublicUrl(url) {
+    const { hostname } = new URL(url);
+    const host = hostname.replace(/^\[|\]$/g, '');
+    if (host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal')) {
+        throw new Error('Scanning private or local addresses is not allowed');
+    }
+    if (net.isIP(host)) {
+        if (isPrivateIp(host)) throw new Error('Scanning private or local addresses is not allowed');
+        return;
+    }
+    let records;
+    try {
+        records = await dns.lookup(host, { all: true });
+    } catch (e) {
+        throw new Error(`Could not resolve domain "${host}"`);
+    }
+    if (records.some(r => isPrivateIp(r.address))) {
+        throw new Error('Scanning private or local addresses is not allowed');
+    }
+}
+
+/** Download the page ONCE and share it with every scanner. */
+async function fetchPage(url) {
+    const response = await axios.get(url, {
+        timeout: 8000,
+        maxRedirects: 5,
+        maxContentLength: 3 * 1024 * 1024,
+        responseType: 'text',
+        validateStatus: () => true,
+        headers: {
+            'User-Agent': USER_AGENT,
+            'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8'
+        }
+    });
+    const finalUrl =
+        (response.request && response.request.res && response.request.res.responseUrl) || url;
+    return {
+        url,
+        finalUrl,
+        status: response.status,
+        headers: response.headers || {},
+        html: typeof response.data === 'string' ? response.data : String(response.data || '')
+    };
+}
+
+module.exports = { normalizeUrl, assertPublicUrl, fetchPage, USER_AGENT };
