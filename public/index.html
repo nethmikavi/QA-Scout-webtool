@@ -12,9 +12,13 @@
         <div class="logo">QA <strong>Scout</strong></div>
         <nav class="nav-links">
             <a href="#audit" class="nav-tab active" data-target="audit-view">Website Audit</a>
+            <a href="#dashboard" class="nav-tab" data-target="dashboard-view">Dashboard</a>
+            <a href="#performance" class="nav-tab" data-target="performance-view">Performance</a>
             <a href="#history" class="nav-tab" data-target="history-view">Scan History</a>
-            <a href="#checklist" class="nav-tab" data-target="checklist-view">QA Checklist</a>
             <a href="#comparison" class="nav-tab" data-target="comparison-view">Scan Comparison</a>
+            <a href="#bugs" class="nav-tab" data-target="bugs-view">Bug Tracker</a>
+            <a href="#apitester" class="nav-tab" data-target="apitester-view">API Tester</a>
+            <a href="#checklist" class="nav-tab" data-target="checklist-view">QA Checklist</a>
             <a href="#opensource" class="nav-tab" data-target="opensource-view">Open Source</a>
         </nav>
     </header>
@@ -131,6 +135,70 @@
                 </div>
             </div>
 
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view-panel hidden" style="text-align: left;">
+                <h2>QA Dashboard</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Overview of your scan scores, issue categories and bug progress.</p>
+                <div id="dashboardOutput"></div>
+            </div>
+
+            <!-- Performance View -->
+            <div id="performance-view" class="view-panel hidden" style="text-align: left;">
+                <h2>Performance Analysis</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Load time, page weight, requests, compression and caching for a past scan.</p>
+                <div class="panel-card">
+                    <div class="field"><label for="perfScanSelect">Choose a scan</label><select id="perfScanSelect" class="qa-select"></select></div>
+                </div>
+                <div id="performanceOutput"></div>
+            </div>
+
+            <!-- Bug Tracker View -->
+            <div id="bugs-view" class="view-panel hidden" style="text-align: left;">
+                <h2>Bug Tracker</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Log bugs found during testing and track them from Open to Fixed. You can also log bugs straight from scan results.</p>
+                <div class="panel-card">
+                    <h3>Report a new bug</h3>
+                    <div class="form-row">
+                        <div class="field" style="flex: 3;"><label for="bugTitle">Title</label><input id="bugTitle" type="text" placeholder="e.g. Login button not working on mobile"></div>
+                        <div class="field"><label for="bugSeverity">Severity</label>
+                            <select id="bugSeverity"><option>Critical</option><option>Major</option><option selected>Medium</option><option>Minor</option></select></div>
+                    </div>
+                    <div class="form-row"><div class="field"><label for="bugNotes">Steps / notes</label><textarea id="bugNotes" placeholder="Steps to reproduce, expected vs actual result"></textarea></div></div>
+                    <button id="addBugBtn" class="btn-green">Add Bug</button>
+                </div>
+                <div class="form-row" style="align-items:center;">
+                    <div class="field" style="max-width:200px;"><label for="bugFilter">Filter</label>
+                        <select id="bugFilter"><option value="All">All</option><option>Open</option><option>In Progress</option><option>Fixed</option></select></div>
+                    <button id="exportBugsBtn" class="btn-grey" style="margin-top:18px;">Export bugs CSV</button>
+                </div>
+                <div id="bugList"></div>
+            </div>
+
+            <!-- API Tester View -->
+            <div id="apitester-view" class="view-panel hidden" style="text-align: left;">
+                <h2>API Tester</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Send a request to a public API and check status code, response time and body.</p>
+                <div class="panel-card">
+                    <div class="form-row">
+                        <div class="field" style="max-width:120px;"><label for="apiMethod">Method</label>
+                            <select id="apiMethod"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option>HEAD</option></select></div>
+                        <div class="field" style="flex:4;"><label for="apiUrl">URL</label><input id="apiUrl" type="text" placeholder="https://jsonplaceholder.typicode.com/posts/1"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label for="apiExpected">Expected status</label><input id="apiExpected" type="number" placeholder="200"></div>
+                        <div class="field"><label for="apiMaxTime">Max response time (ms)</label><input id="apiMaxTime" type="number" placeholder="2000"></div>
+                        <div class="field"><label for="apiContains">Body must contain</label><input id="apiContains" type="text" placeholder="optional text"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label for="apiHeaders">Headers (JSON, optional)</label><textarea id="apiHeaders" placeholder='{"Authorization": "Bearer ..."}'></textarea></div>
+                        <div class="field"><label for="apiBody">Body (for POST/PUT/PATCH)</label><textarea id="apiBody" placeholder='{"name": "test"}'></textarea></div>
+                    </div>
+                    <button id="runApiBtn" class="btn-green">Send Request</button>
+                </div>
+                <div id="apiOutput"></div>
+            </div>
+
             <!-- 5. Open Source & About View -->
             <div id="opensource-view" class="view-panel hidden" style="text-align: left;">
                 <h2>About QA Scout & Open Source</h2>
@@ -160,6 +228,7 @@
         </div>
     </main>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=4"></script>
+    <script src="features.js?v=4"></script>
 </body>
 </html>

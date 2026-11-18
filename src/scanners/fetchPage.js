@@ -43,6 +43,8 @@ function isPrivateIp(ip) {
 
 /** Block localhost / private network targets (SSRF protection). */
 async function assertPublicUrl(url) {
+    // Local development/testing only. Never set this on Vercel.
+    if (process.env.QA_ALLOW_PRIVATE === '1') return;
     const { hostname } = new URL(url);
     const host = hostname.replace(/^\[|\]$/g, '');
     if (host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal')) {
@@ -65,6 +67,7 @@ async function assertPublicUrl(url) {
 
 /** Download the page ONCE and share it with every scanner. */
 async function fetchPage(url) {
+    const started = Date.now();
     const response = await axios.get(url, {
         timeout: 8000,
         maxRedirects: 5,
@@ -78,9 +81,11 @@ async function fetchPage(url) {
     });
     const finalUrl =
         (response.request && response.request.res && response.request.res.responseUrl) || url;
+    const timeMs = Date.now() - started;
     return {
         url,
         finalUrl,
+        timeMs,
         status: response.status,
         headers: response.headers || {},
         html: typeof response.data === 'string' ? response.data : String(response.data || '')

@@ -45,7 +45,8 @@ function saveToHistory(scan) {
         url: scan.url,
         score: scan.score,
         created_at: scan.scannedAt || new Date().toISOString(),
-        issues: scan.issues || []
+        issues: scan.issues || [],
+        performance: scan.performance || null
     });
     try {
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
@@ -77,6 +78,7 @@ function switchView(targetId) {
 
     if (targetId === 'history-view') loadScanHistory();
     if (targetId === 'comparison-view') loadComparisonDropdowns();
+    if (window.QA_HOOKS && window.QA_HOOKS[targetId]) window.QA_HOOKS[targetId]();
 }
 
 function routeFromHash() {
@@ -311,10 +313,11 @@ async function runScan() {
             </span>`;
 
         const issuesHtml = data.issues.length > 0
-            ? data.issues.map(issue => `
+            ? data.issues.map((issue, idx) => `
                 <div class="issue-card" style="margin-bottom: 10px; padding: 12px;">
                     <strong>[${escapeHtml(issue.severity)}] ${escapeHtml(issue.type)}</strong>: ${escapeHtml(issue.message)}
                     <br><small><strong>Fix:</strong> ${escapeHtml(issue.fix)}</small>
+                    <br><button class="btn-small log-bug-btn" data-idx="${idx}" style="margin-top:6px;">🐞 Log as bug</button>
                 </div>`).join('')
             : '<p style="color: #3fb950; font-weight: bold;">No major issues found! Great job.</p>';
 
@@ -328,17 +331,28 @@ async function runScan() {
                     ${badge('🛡️ Security', has('Security'))}
                     ${badge('📈 SEO', has('SEO'))}
                     ${badge('♿ Accessibility', has('Accessibility'))}
+                    ${badge('⚡ Performance', has('Performance'))}
                 </div>
 
                 <div style="margin: 15px 0; display: flex; gap: 10px;">
                     <button id="downloadJsonBtn" style="padding: 8px 14px; background: #2ea043; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📥 Export JSON</button>
                     <button id="downloadCsvBtn" style="padding: 8px 14px; background: #30363d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📊 Export CSV</button>
+                    <button id="downloadPdfBtn" style="padding: 8px 14px; background: #30363d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📄 Export PDF</button>
                 </div>
 
                 <h4 style="margin-top: 15px;">Detected Issues (${data.issues.length}):</h4>
                 ${issuesHtml}
             </div>
         `;
+
+        document.getElementById('downloadPdfBtn').addEventListener('click', () => window.QA && window.QA.exportPdf(data));
+        outputDiv.querySelectorAll('.log-bug-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.QA) window.QA.logBug(data.issues[parseInt(btn.dataset.idx, 10)], data.url);
+                btn.textContent = '✅ Logged in Bug Tracker';
+                btn.disabled = true;
+            });
+        });
 
         document.getElementById('downloadJsonBtn').addEventListener('click', () => {
             downloadBlob(JSON.stringify(data, null, 2), 'application/json', `qa-report-${fileSafeName(data.url)}.json`);

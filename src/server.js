@@ -7,6 +7,8 @@ const { normalizeUrl, assertPublicUrl, fetchPage } = require('./scanners/fetchPa
 const checkLinks = require('./scanners/linkChecker');
 const checkSecurity = require('./scanners/securityChecker');
 const checkSeoAndAccessibility = require('./scanners/seoAccessibilityChecker');
+const checkPerformance = require('./scanners/performanceChecker');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -63,7 +65,8 @@ app.post('/api/scan', async (req, res) => {
             Promise.resolve(checkSeoAndAccessibility(page))
         ]);
 
-        const issues = [...linkIssues, ...securityIssues, ...seoA11yIssues];
+        const perf = checkPerformance(page);
+        const issues = [...linkIssues, ...securityIssues, ...seoA11yIssues, ...perf.issues];
 
         if (page.status >= 400) {
             issues.unshift({
@@ -78,11 +81,85 @@ app.post('/api/scan', async (req, res) => {
             url,
             score: calculateScore(issues),
             scannedAt: new Date().toISOString(),
+            performance: perf.metrics,
             issues
         });
     } catch (err) {
         console.error('Scan error:', err);
         res.status(500).json({ error: 'Failed to scan website. Please check the URL.' });
+    }
+});
+
+// ---- API Tester: send a request to a public URL and run simple assertions ----
+const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'];
+
+app.post('/api/test-api', async (req, res) => {
+    const b = req.body || {};
+    const method = String(b.method || 'GET').toUpperCase();
+    if (!ALLOWED_METHODS.includes(method)) {
+        return res.status(400).json({ error: 'Unsupported HTTP method' });
+    }
+
+    let url;
+    try {
+        url = normalizeUrl(b.url);
+        await assertPublicUrl(url);
+    } catch (err) {
+        return res.status(400).json({ error: err.message });
+    }
+
+    let headers = {};
+    if (b.headers && typeof b.headers === 'object') {
+        for (const [k, v] of Object.entries(b.headers).slice(0, 20)) {
+            if (/^[\w-]+$/.test(k) && typeof v === 'string') headers[k] = v.slice(0, 500);
+        }
+    }
+
+    const started = Date.now();
+    try {
+        const r = await axios.request({
+            url, method, headers,
+            data: ['GET', 'HEAD'].includes(method) ? undefined : (b.body || undefined),
+            timeout: 10000,
+            maxRedirects: 3,
+            maxContentLength: 1024 * 1024,
+            responseType: 'text',
+            transformResponse: [d => d],
+            validateStatus: () => true
+        });
+        const timeMs = Date.now() - started;
+        const bodyText = typeof r.data === 'string' ? r.data : '';
+        const contentType = String(r.headers['content-type'] || '');
+        const checks = [];
+
+        const expected = parseInt(b.expectedStatus, 10);
+        if (expected) {
+            checks.push({ name: `Status code is ${expected}`, passed: r.status === expected, detail: `Got ${r.status}` });
+        }
+        const maxTime = parseInt(b.maxTimeMs, 10);
+        if (maxTime) {
+            checks.push({ name: `Response time under ${maxTime} ms`, passed: timeMs <= maxTime, detail: `Took ${timeMs} ms` });
+        }
+        if (/json/i.test(contentType)) {
+            let valid = true;
+            try { JSON.parse(bodyText); } catch (e) { valid = false; }
+            checks.push({ name: 'Response body is valid JSON', passed: valid, detail: valid ? 'OK' : 'Could not parse JSON' });
+        }
+        if (b.bodyContains) {
+            checks.push({ name: `Body contains "${String(b.bodyContains).slice(0, 60)}"`, passed: bodyText.includes(String(b.bodyContains)), detail: '' });
+        }
+
+        res.json({
+            status: r.status,
+            statusText: r.statusText,
+            timeMs,
+            sizeBytes: Buffer.byteLength(bodyText),
+            headers: r.headers,
+            bodyPreview: bodyText.slice(0, 2000),
+            checks
+        });
+    } catch (err) {
+        res.status(502).json({ error: `Request failed: ${err.code || err.message}` });
     }
 });
 
