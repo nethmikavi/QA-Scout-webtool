@@ -14,6 +14,7 @@ function checkPerformance(page) {
     const metrics = {
         loadTimeMs: page.timeMs || 0,
         htmlSizeKb: Math.round((bytes / 1024) * 10) / 10,
+        transferSizeKb: Math.round(((page.transferBytes || bytes) / 1024) * 10) / 10,
         images,
         lazyImages,
         scripts,

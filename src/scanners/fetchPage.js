@@ -1,6 +1,7 @@
 const axios = require('axios');
 const dns = require('dns').promises;
 const net = require('net');
+const zlib = require('zlib');
 
 const USER_AGENT = 'Mozilla/5.0 (compatible; QAScoutBot/1.1; +https://github.com/nethmikavi/QA-Scout-webtool)';
 
@@ -68,27 +69,46 @@ async function assertPublicUrl(url) {
 /** Download the page ONCE and share it with every scanner. */
 async function fetchPage(url) {
     const started = Date.now();
+    // decompress:false keeps the real Content-Encoding header, so we can report
+    // compression accurately. We decompress the body ourselves below.
     const response = await axios.get(url, {
         timeout: 8000,
         maxRedirects: 5,
         maxContentLength: 3 * 1024 * 1024,
-        responseType: 'text',
+        responseType: 'arraybuffer',
+        decompress: false,
         validateStatus: () => true,
         headers: {
             'User-Agent': USER_AGENT,
-            'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8'
+            'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br'
         }
     });
+    const timeMs = Date.now() - started;
     const finalUrl =
         (response.request && response.request.res && response.request.res.responseUrl) || url;
-    const timeMs = Date.now() - started;
+
+    const raw = Buffer.from(response.data || []);
+    const encoding = String(response.headers['content-encoding'] || '').toLowerCase().trim();
+    let body = raw;
+    try {
+        if (encoding === 'gzip' || encoding === 'x-gzip') body = zlib.gunzipSync(raw);
+        else if (encoding === 'br') body = zlib.brotliDecompressSync(raw);
+        else if (encoding === 'deflate') {
+            try { body = zlib.inflateSync(raw); } catch (e) { body = zlib.inflateRawSync(raw); }
+        }
+    } catch (e) {
+        body = raw; // could not decode; analyse whatever we received
+    }
+
     return {
         url,
         finalUrl,
         timeMs,
         status: response.status,
         headers: response.headers || {},
-        html: typeof response.data === 'string' ? response.data : String(response.data || '')
+        transferBytes: raw.length,
+        html: body.toString('utf8')
     };
 }
 

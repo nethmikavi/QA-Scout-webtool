@@ -18,7 +18,7 @@
             <a href="#comparison" class="nav-tab" data-target="comparison-view">Scan Comparison</a>
             <a href="#bugs" class="nav-tab" data-target="bugs-view">Bug Tracker</a>
             <a href="#apitester" class="nav-tab" data-target="apitester-view">API Tester</a>
-            <a href="#checklist" class="nav-tab" data-target="checklist-view">QA Checklist</a>
+            <a href="#testcases" class="nav-tab" data-target="testcases-view">Test Cases</a>
             <a href="#opensource" class="nav-tab" data-target="opensource-view">Open Source</a>
         </nav>
     </header>
@@ -72,39 +72,44 @@
                 </div>
             </div>
 
-            <!-- 3. QA Checklist View -->
-            <div id="checklist-view" class="view-panel hidden" style="text-align: left;">
-                <h2>Interactive QA Audit Checklist</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Use this interactive checklist during your manual or automated site evaluations:</p>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
-                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
-                        <div>
-                            <strong style="color: #3fb950;">🔗 Links & Navigation:</strong> Verify all primary navigation links return HTTP 200 OK, check for dead anchor tags, and ensure no redirect loops exist.
-                        </div>
-                    </label>
+            <!-- 3. Test Case Manager View -->
+            <div id="testcases-view" class="view-panel hidden" style="text-align: left;">
+                <h2>Test Case Manager</h2>
+                <p style="color: #8b949e; margin-bottom: 20px;">Write test cases, mark them Pass or Fail, and track your pass rate. Let AI draft the test cases for you.</p>
 
-                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
-                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
-                        <div>
-                            <strong style="color: #3fb950;">🛡️ Security Headers:</strong> Validate HSTS enforcement, Content Security Policy (CSP), X-Frame-Options, and secure cookie attributes.
-                        </div>
-                    </label>
-
-                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
-                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
-                        <div>
-                            <strong style="color: #3fb950;">📈 SEO Optimization:</strong> Check meta title uniqueness, description length, Open Graph tags for social sharing, and robots.txt configuration.
-                        </div>
-                    </label>
-
-                    <label style="background: #161b22; padding: 15px; border-radius: 6px; border: 1px solid #30363d; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: #c9d1d9;">
-                        <input type="checkbox" style="margin-top: 4px; accent-color: #2ea043; width: 16px; height: 16px;">
-                        <div>
-                            <strong style="color: #3fb950;">♿ Accessibility (A11y):</strong> Audit images for descriptive `alt` text, confirm form inputs have associated labels, and test keyboard navigation focus states.
-                        </div>
-                    </label>
+                <div class="panel-card" style="border-left: 3px solid #a371f7;">
+                    <h3>✨ Generate test cases with AI</h3>
+                    <div class="form-row">
+                        <div class="field" style="flex: 4;"><label for="aiFeature">Describe the feature to test</label>
+                            <textarea id="aiFeature" placeholder="e.g. Login page with email and password, a 'Forgot password' link and a 'Remember me' checkbox"></textarea></div>
+                        <div class="field" style="max-width: 130px;"><label for="aiCount">How many</label>
+                            <select id="aiCount"><option>5</option><option selected>8</option><option>10</option><option>15</option></select></div>
+                    </div>
+                    <button id="aiGenBtn" class="btn-green">✨ Generate with AI</button>
+                    <span id="aiGenMsg" style="margin-left: 10px; font-size: 13px;"></span>
                 </div>
+
+                <div class="panel-card">
+                    <h3>Add a test case manually</h3>
+                    <div class="form-row">
+                        <div class="field" style="flex: 3;"><label for="tcTitle">Title</label><input id="tcTitle" type="text" placeholder="e.g. Login fails with wrong password"></div>
+                        <div class="field"><label for="tcPriority">Priority</label><select id="tcPriority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field"><label for="tcSteps">Steps (one per line)</label><textarea id="tcSteps" placeholder="Open the login page&#10;Enter a wrong password&#10;Click Login"></textarea></div>
+                        <div class="field"><label for="tcExpected">Expected result</label><textarea id="tcExpected" placeholder="An error message is shown and the user stays on the login page"></textarea></div>
+                    </div>
+                    <button id="addTcBtn" class="btn-green">Add Test Case</button>
+                </div>
+
+                <div id="tcSummary"></div>
+                <div class="form-row" style="align-items: flex-end;">
+                    <div class="field" style="max-width: 200px;"><label for="tcFilter">Show</label>
+                        <select id="tcFilter"><option value="All">All</option><option>Not Run</option><option>Pass</option><option>Fail</option></select></div>
+                    <button id="exportTcBtn" class="btn-grey">Export CSV</button>
+                    <button id="clearTcBtn" class="btn-grey">Delete all</button>
+                </div>
+                <div id="tcList"></div>
             </div>
 
             <!-- 4. Scan Comparison View -->
@@ -228,7 +233,7 @@
         </div>
     </main>
 
-    <script src="script.js?v=4"></script>
-    <script src="features.js?v=4"></script>
+    <script src="script.js?v=5"></script>
+    <script src="features.js?v=5"></script>
 </body>
 </html>

@@ -338,3 +338,12 @@ header p {
 .kv { display: grid; grid-template-columns: 180px 1fr; gap: 6px 12px; font-size: 13px; word-break: break-all; }
 .kv span:nth-child(odd) { color: #8b949e; }
 pre.code { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; overflow: auto; max-height: 260px; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+
+.ai-box { background: #0d1117; border: 1px solid #30363d; border-left: 3px solid #a371f7; border-radius: 6px; padding: 14px; margin: 12px 0; font-size: 14px; color: #c9d1d9; line-height: 1.55; text-align: left; }
+.ai-box h4 { color: #fff; margin: 12px 0 4px; font-size: 14px; }
+.tc-case { background: #0d1117; border: 1px solid #30363d; border-left: 4px solid #6e7681; border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+.tc-case.pass { border-left-color: #3fb950; }
+.tc-case.fail { border-left-color: #f85149; }
+.tc-case ol { margin: 6px 0 6px 20px; font-size: 13px; color: #c9d1d9; }
+.progress { background: #0d1117; border-radius: 6px; height: 10px; overflow: hidden; margin-bottom: 18px; border: 1px solid #30363d; }
+.progress div { height: 100%; background: #3fb950; }

@@ -28,6 +28,24 @@
         saveBugs(bugs);
     }
 
+    /* ---------- Test case storage ---------- */
+    const TESTS_KEY = 'qaScoutTests';
+    function getTests() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(TESTS_KEY) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) { return []; }
+    }
+    function saveTests(list) {
+        try { localStorage.setItem(TESTS_KEY, JSON.stringify(list)); } catch (e) { console.warn(e); }
+    }
+    function testStats(list) {
+        const pass = list.filter(t => t.status === 'Pass').length;
+        const fail = list.filter(t => t.status === 'Fail').length;
+        const executed = pass + fail;
+        return { total: list.length, pass, fail, notRun: list.length - executed, rate: executed ? Math.round((pass / executed) * 100) : null };
+    }
+
     /* ---------- Dashboard ---------- */
     function statCard(label, value, color) {
         return `<div class="stat"><span>${label}</span><strong style="color:${color || '#fff'}">${value}</strong></div>`;
@@ -83,6 +101,7 @@
                 ${statCard('Best score', Math.max(...scores) + '/100', '#3fb950')}
                 ${statCard('Latest score', latest.score + '/100', scoreColor(latest.score))}
                 ${statCard('Open bugs', openBugs, openBugs ? '#f0883e' : '#3fb950')}
+                ${(() => { const t = testStats(getTests()); return statCard('Test pass rate', t.rate === null ? '—' : t.rate + '%', t.rate === null ? '#8b949e' : scoreColor(t.rate)); })()}
             </div>
             <div class="panel-card"><h3>Score trend (last ${trend.length} scans)</h3>${trendSvg(trend)}</div>
             <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
@@ -114,7 +133,7 @@
         out.innerHTML = `
             <div class="stat-grid">
                 ${perfCard('Download time', m.loadTimeMs + ' ms', rate(m.loadTimeMs, 1500, 3000), 'Good under 1500 ms')}
-                ${perfCard('HTML size', m.htmlSizeKb + ' KB', rate(m.htmlSizeKb, 200, 500), 'Good under 200 KB')}
+                ${perfCard('HTML size', m.htmlSizeKb + ' KB', rate(m.htmlSizeKb, 200, 500), 'Good under 200 KB' + (m.transferSizeKb ? ' · ' + m.transferSizeKb + ' KB transferred' : ''))}
                 ${perfCard('Est. requests', m.estimatedRequests, rate(m.estimatedRequests, 30, 60), 'HTML + images + scripts + CSS')}
                 ${perfCard('Compression', escapeHtml(m.compression), m.compression === 'none' ? 'poor' : 'good', 'gzip or brotli recommended')}
             </div>
@@ -295,13 +314,220 @@
         w.document.close();
     }
 
+
+    /* ---------- AI helpers ---------- */
+    async function aiPost(path, body) {
+        let resp, data;
+        try {
+            resp = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            data = await resp.json();
+        } catch (e) {
+            return { ok: false, error: 'Could not reach the server. Please try again.' };
+        }
+        if (!resp.ok) {
+            const msg = data && data.code === 'NO_KEY'
+                ? 'AI is not set up on this server yet. The site owner needs to add the GEMINI_API_KEY setting.'
+                : (data && data.error) || 'AI request failed.';
+            return { ok: false, error: msg };
+        }
+        return { ok: true, data };
+    }
+
+    // Tiny, safe formatter: escapes everything, then supports **bold**, line breaks and ``` code blocks.
+    function mdLite(text) {
+        return String(text || '').split(/```[a-zA-Z]*\n?/).map((part, i) =>
+            i % 2
+                ? `<pre class="code">${escapeHtml(part.replace(/\n$/, ''))}</pre>`
+                : escapeHtml(part).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')
+        ).join('');
+    }
+
+    async function aiSummary(scan, box, btn) {
+        const label = btn.textContent;
+        btn.disabled = true; btn.textContent = '✨ Thinking...';
+        box.innerHTML = '';
+        const r = await aiPost('/api/ai/summary', { url: scan.url, score: scan.score, issues: scan.issues, performance: scan.performance });
+        btn.disabled = false; btn.textContent = label;
+        if (!r.ok) { box.innerHTML = `<div class="ai-box" style="color:#f85149;">${escapeHtml(r.error)}</div>`; return; }
+        const sm = r.data.summary || {};
+        const fixes = Array.isArray(sm.topFixes) ? sm.topFixes : [];
+        box.innerHTML = `<div class="ai-box">
+            <strong style="color:#fff;">✨ AI Summary</strong>
+            <p style="margin:8px 0;">${escapeHtml(sm.overview)}</p>
+            ${fixes.length ? '<h4>Fix these first</h4>' + fixes.map((f, i) => `<p style="margin:6px 0;"><strong>${i + 1}. ${escapeHtml(f.title)}</strong><br><span style="color:#8b949e;">Why:</span> ${escapeHtml(f.why)}<br><span style="color:#8b949e;">How:</span> ${escapeHtml(f.how)}</p>`).join('') : ''}
+            ${sm.positives ? `<h4>What is already good</h4><p style="margin:4px 0;">${escapeHtml(sm.positives)}</p>` : ''}
+            <small style="color:#6e7681;">AI-generated advice. Always verify before changing production.</small></div>`;
+    }
+
+    async function aiFix(issue, url, box, btn) {
+        const label = btn.textContent;
+        btn.disabled = true; btn.textContent = '✨ Thinking...';
+        box.innerHTML = '';
+        const r = await aiPost('/api/ai/fix', { url, issue });
+        btn.disabled = false; btn.textContent = label;
+        box.innerHTML = r.ok
+            ? `<div class="ai-box">${mdLite(r.data.fix)}</div>`
+            : `<div class="ai-box" style="color:#f85149;">${escapeHtml(r.error)}</div>`;
+    }
+
+    /* ---------- Test Case Manager ---------- */
+    function nextTestId(list) {
+        const max = list.reduce((m, t) => Math.max(m, parseInt(String(t.id).replace(/\D/g, ''), 10) || 0), 0);
+        return 'TC-' + String(max + 1).padStart(3, '0');
+    }
+
+    function addTests(newOnes) {
+        const list = getTests();
+        const added = [];
+        newOnes.forEach(t => {
+            const id = nextTestId(list.concat(added));
+            added.push({
+                id, title: t.title, type: t.type || 'Manual', priority: t.priority || 'Medium',
+                steps: t.steps || [], expected: t.expected || '', status: 'Not Run',
+                source: t.source || 'Manual', created: new Date().toISOString(), bugLogged: false
+            });
+        });
+        saveTests(added.reverse().concat(list));
+    }
+
+    function renderTests() {
+        const listEl = $('tcList');
+        if (!listEl) return;
+        const all = getTests();
+        const st = testStats(all);
+
+        $('tcSummary').innerHTML = all.length ? `
+            <div class="stat-grid">
+                ${statCard('Total', st.total)}
+                ${statCard('Passed', st.pass, '#3fb950')}
+                ${statCard('Failed', st.fail, st.fail ? '#f85149' : '#fff')}
+                ${statCard('Not run', st.notRun, '#8b949e')}
+                ${statCard('Pass rate', st.rate === null ? '—' : st.rate + '%', st.rate === null ? '#8b949e' : scoreColor(st.rate))}
+            </div>
+            <div class="progress"><div style="width:${st.total ? Math.round((st.pass / st.total) * 100) : 0}%"></div></div>` : '';
+
+        const filter = $('tcFilter').value;
+        const shown = all.filter(t => filter === 'All' || t.status === filter);
+        if (!shown.length) {
+            listEl.innerHTML = `<p style="color:#8b949e;">${all.length ? 'No test cases match this filter.' : 'No test cases yet. Generate some with AI or add one manually.'}</p>`;
+            return;
+        }
+        const prColor = { High: '#f85149', Medium: '#eab308', Low: '#58a6ff' };
+        listEl.innerHTML = shown.map(t => `
+            <div class="tc-case ${t.status === 'Pass' ? 'pass' : t.status === 'Fail' ? 'fail' : ''}">
+                <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <strong style="color:#fff; word-break:break-word;">${escapeHtml(t.id)} &middot; ${escapeHtml(t.title)}</strong>
+                    <span>
+                        ${t.source === 'AI' ? '<span class="pill" style="background:#8957e5; color:#fff;">✨ AI</span> ' : ''}
+                        <span class="pill" style="background:#30363d; color:#c9d1d9;">${escapeHtml(t.type)}</span>
+                        <span class="pill" style="background:${prColor[t.priority] || '#8b949e'}; color:#0d1117;">${escapeHtml(t.priority)}</span>
+                    </span>
+                </div>
+                ${t.steps && t.steps.length ? `<ol>${t.steps.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>` : ''}
+                ${t.expected ? `<p style="font-size:13px; color:#8b949e; margin:4px 0 8px;"><strong style="color:#c9d1d9;">Expected:</strong> ${escapeHtml(t.expected)}</p>` : ''}
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <select class="qa-select tc-status" data-id="${escapeHtml(t.id)}" style="width:auto;">
+                        ${['Not Run', 'Pass', 'Fail'].map(x => `<option ${x === t.status ? 'selected' : ''}>${x}</option>`).join('')}
+                    </select>
+                    ${t.status === 'Fail' ? `<button class="btn-small tc-bug" data-id="${escapeHtml(t.id)}" ${t.bugLogged ? 'disabled' : ''}>${t.bugLogged ? '✅ Bug logged' : '🐞 Log bug'}</button>` : ''}
+                    <button class="btn-small tc-del" data-id="${escapeHtml(t.id)}">Delete</button>
+                </div>
+            </div>`).join('');
+    }
+
+    function initTests() {
+        if (!$('addTcBtn')) return;
+
+        $('addTcBtn').addEventListener('click', () => {
+            const title = $('tcTitle').value.trim();
+            if (!title) { alert('Please enter a test case title.'); return; }
+            addTests([{
+                title, priority: $('tcPriority').value, type: 'Manual', source: 'Manual',
+                steps: $('tcSteps').value.split('\n').map(x => x.trim()).filter(Boolean),
+                expected: $('tcExpected').value.trim()
+            }]);
+            ['tcTitle', 'tcSteps', 'tcExpected'].forEach(id => { $(id).value = ''; });
+            renderTests();
+        });
+
+        $('aiGenBtn').addEventListener('click', async () => {
+            const feature = $('aiFeature').value.trim();
+            const msg = $('aiGenMsg');
+            if (feature.length < 5) { msg.style.color = '#f85149'; msg.textContent = 'Please describe the feature first.'; return; }
+            const btn = $('aiGenBtn');
+            btn.disabled = true; btn.textContent = '✨ Generating...';
+            msg.style.color = '#8b949e'; msg.textContent = 'This can take a few seconds.';
+            const r = await aiPost('/api/ai/testcases', { feature, count: $('aiCount').value });
+            btn.disabled = false; btn.textContent = '✨ Generate with AI';
+            if (!r.ok) { msg.style.color = '#f85149'; msg.textContent = r.error; return; }
+            const cases = r.data.testCases || [];
+            if (!cases.length) { msg.style.color = '#f85149'; msg.textContent = 'The AI returned no test cases. Try describing the feature in more detail.'; return; }
+            addTests(cases.map(c => ({ ...c, source: 'AI' })));
+            msg.style.color = '#3fb950';
+            msg.textContent = `Added ${cases.length} AI test cases below. Review them and delete any you don't need.`;
+            renderTests();
+        });
+
+        $('tcFilter').addEventListener('change', renderTests);
+
+        $('tcList').addEventListener('change', e => {
+            if (!e.target.classList.contains('tc-status')) return;
+            const list = getTests();
+            const t = list.find(x => x.id === e.target.dataset.id);
+            if (t) { t.status = e.target.value; saveTests(list); renderTests(); }
+        });
+
+        $('tcList').addEventListener('click', e => {
+            const id = e.target.dataset && e.target.dataset.id;
+            if (!id) return;
+            const list = getTests();
+            if (e.target.classList.contains('tc-del')) {
+                saveTests(list.filter(x => x.id !== id));
+                renderTests();
+            } else if (e.target.classList.contains('tc-bug')) {
+                const t = list.find(x => x.id === id);
+                if (!t || t.bugLogged) return;
+                const bugs = getBugs();
+                bugs.unshift({
+                    id: Date.now() + Math.random(),
+                    title: `Test failed: ${t.id} ${t.title}`.slice(0, 200),
+                    severity: t.priority === 'High' ? 'Major' : t.priority === 'Low' ? 'Minor' : 'Medium',
+                    status: 'Open',
+                    notes: `Steps:\n${(t.steps || []).map((x, i) => `${i + 1}. ${x}`).join('\n')}\nExpected: ${t.expected || ''}`,
+                    created: new Date().toISOString()
+                });
+                saveBugs(bugs);
+                t.bugLogged = true;
+                saveTests(list);
+                renderTests();
+            }
+        });
+
+        $('exportTcBtn').addEventListener('click', () => {
+            let csv = 'ID,Title,Type,Priority,Status,Steps,Expected,Source\n';
+            getTests().forEach(t => {
+                csv += [t.id, t.title, t.type, t.priority, t.status, (t.steps || []).join(' | '), t.expected, t.source].map(csvCell).join(',') + '\n';
+            });
+            downloadBlob(csv, 'text/csv;charset=utf-8', 'qa-scout-test-cases.csv');
+        });
+
+        $('clearTcBtn').addEventListener('click', () => {
+            if (getTests().length && confirm('Delete ALL test cases? This cannot be undone.')) {
+                saveTests([]);
+                renderTests();
+            }
+        });
+    }
+
     /* ---------- Wire up ---------- */
     initBugs();
     initApiTester();
-    window.QA = { logBug, exportPdf };
+    initTests();
+    window.QA = { logBug, exportPdf, aiSummary, aiFix };
     window.QA_HOOKS = {
         'dashboard-view': renderDashboard,
         'performance-view': renderPerformance,
-        'bugs-view': renderBugs
+        'bugs-view': renderBugs,
+        'testcases-view': renderTests
     };
 })();

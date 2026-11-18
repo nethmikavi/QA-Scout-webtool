@@ -1,3 +1,15 @@
+// Load local secrets from a .env file if present (never committed - see .gitignore).
+try {
+    const fs = require('fs');
+    const envFile = require('path').join(__dirname, '../.env');
+    if (fs.existsSync(envFile)) {
+        fs.readFileSync(envFile, 'utf8').split(/\r?\n/).forEach(line => {
+            const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/);
+            if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+        });
+    }
+} catch (e) { /* ignore */ }
+
 const express = require('express');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -9,6 +21,7 @@ const checkSecurity = require('./scanners/securityChecker');
 const checkSeoAndAccessibility = require('./scanners/seoAccessibilityChecker');
 const checkPerformance = require('./scanners/performanceChecker');
 const axios = require('axios');
+const ai = require('./ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -162,6 +175,39 @@ app.post('/api/test-api', async (req, res) => {
         res.status(502).json({ error: `Request failed: ${err.code || err.message}` });
     }
 });
+
+// ---- AI features (Gemini). Stricter rate limit because each call costs quota. ----
+const aiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many AI requests. Please wait a few minutes.' }
+});
+
+function aiRoute(handler) {
+    return async (req, res) => {
+        try {
+            res.json(await handler(req.body || {}));
+        } catch (err) {
+            if (err instanceof ai.AiError) {
+                return res.status(err.status).json({ error: err.message, code: err.code });
+            }
+            console.error('AI error:', err.message);
+            res.status(500).json({ error: 'AI request failed.' });
+        }
+    };
+}
+
+app.get('/api/ai/status', (req, res) => res.json({ configured: ai.aiConfigured() }));
+app.post('/api/ai/summary', aiLimiter, aiRoute(async b => ({ summary: await ai.summarizeScan(b) })));
+app.post('/api/ai/fix', aiLimiter, aiRoute(async b => ({ fix: await ai.suggestFix(b) })));
+app.post('/api/ai/testcases', aiLimiter, aiRoute(async b => {
+    if (!b.feature || String(b.feature).trim().length < 5) {
+        throw new ai.AiError('Please describe the feature you want test cases for.', 'INPUT', 400);
+    }
+    return { testCases: await ai.generateTestCases(b) };
+}));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

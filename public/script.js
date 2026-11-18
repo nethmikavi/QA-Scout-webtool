@@ -318,6 +318,8 @@ async function runScan() {
                     <strong>[${escapeHtml(issue.severity)}] ${escapeHtml(issue.type)}</strong>: ${escapeHtml(issue.message)}
                     <br><small><strong>Fix:</strong> ${escapeHtml(issue.fix)}</small>
                     <br><button class="btn-small log-bug-btn" data-idx="${idx}" style="margin-top:6px;">🐞 Log as bug</button>
+                    <button class="btn-small ai-fix-btn" data-idx="${idx}" style="margin-top:6px;">✨ AI fix</button>
+                    <div class="ai-fix-box"></div>
                 </div>`).join('')
             : '<p style="color: #3fb950; font-weight: bold;">No major issues found! Great job.</p>';
 
@@ -338,7 +340,10 @@ async function runScan() {
                     <button id="downloadJsonBtn" style="padding: 8px 14px; background: #2ea043; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📥 Export JSON</button>
                     <button id="downloadCsvBtn" style="padding: 8px 14px; background: #30363d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📊 Export CSV</button>
                     <button id="downloadPdfBtn" style="padding: 8px 14px; background: #30363d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📄 Export PDF</button>
+                    <button id="aiSummaryBtn" style="padding: 8px 14px; background: #8957e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">✨ AI Summary</button>
                 </div>
+
+                <div id="aiSummaryBox"></div>
 
                 <h4 style="margin-top: 15px;">Detected Issues (${data.issues.length}):</h4>
                 ${issuesHtml}
@@ -346,6 +351,15 @@ async function runScan() {
         `;
 
         document.getElementById('downloadPdfBtn').addEventListener('click', () => window.QA && window.QA.exportPdf(data));
+        document.getElementById('aiSummaryBtn').addEventListener('click', (e) => {
+            if (window.QA) window.QA.aiSummary(data, document.getElementById('aiSummaryBox'), e.currentTarget);
+        });
+        outputDiv.querySelectorAll('.ai-fix-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const card = btn.closest('.issue-card');
+                if (window.QA) window.QA.aiFix(data.issues[parseInt(btn.dataset.idx, 10)], data.url, card.querySelector('.ai-fix-box'), btn);
+            });
+        });
         outputDiv.querySelectorAll('.log-bug-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (window.QA) window.QA.logBug(data.issues[parseInt(btn.dataset.idx, 10)], data.url);
