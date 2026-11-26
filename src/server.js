@@ -22,6 +22,7 @@ const checkSeoAndAccessibility = require('./scanners/seoAccessibilityChecker');
 const checkPerformance = require('./scanners/performanceChecker');
 const axios = require('axios');
 const ai = require('./ai');
+const { buildReport, sanitizeScan } = require('./report');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -208,6 +209,26 @@ app.post('/api/ai/testcases', aiLimiter, aiRoute(async b => {
     }
     return { testCases: await ai.generateTestCases(b) };
 }));
+
+// ---- Professional PDF report (generated on the server, sent as a download) ----
+app.post('/api/report/pdf', (req, res) => {
+    const data = sanitizeScan(req.body);
+    if (!data) return res.status(400).json({ error: 'Invalid scan data' });
+    let host = 'website';
+    try { host = new URL(/^https?:\/\//i.test(data.url) ? data.url : 'https://' + data.url).hostname; } catch (e) { /* keep default */ }
+    const day = new Date().toISOString().slice(0, 10);
+    const filename = `qa-scout-report-${host.replace(/[^a-z0-9.-]/gi, '_')}-${day}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cache-Control', 'no-store');
+    try {
+        buildReport(data, res);
+    } catch (err) {
+        console.error('PDF error:', err);
+        if (!res.headersSent) res.status(500).json({ error: 'Could not generate the PDF report.' });
+        else res.end();
+    }
+});
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

@@ -3,7 +3,7 @@
 (function () {
     const $ = id => document.getElementById(id);
     const BUGS_KEY = 'qaScoutBugs';
-    const SEV_COLOR = { Critical: '#f85149', Major: '#f0883e', Medium: '#eab308', Minor: '#58a6ff' };
+    const SEV_COLOR = { Critical: '#d1242f', Major: '#f0883e', Medium: '#b7791f', Minor: '#5b3fd1' };
 
     /* ---------- Bug storage ---------- */
     function getBugs() {
@@ -53,7 +53,7 @@
 
     function barRows(counts, colorFn) {
         const entries = Object.entries(counts);
-        if (!entries.length) return '<p style="color:#3fb950;">No issues in the latest scan.</p>';
+        if (!entries.length) return '<p style="color:#1a7f37;">No issues in the latest scan.</p>';
         const max = Math.max(...entries.map(e => e[1]));
         return entries.map(([k, v]) => `
             <div class="bar-row"><span class="label">${escapeHtml(k)}</span>
@@ -67,9 +67,9 @@
         const x = i => P + (n === 1 ? (W - 2 * P) / 2 : (i * (W - 2 * P)) / (n - 1));
         const y = s => P + ((100 - s) / 100) * (H - 2 * P);
         const line = points.map((p, i) => `${x(i)},${y(p.score)}`).join(' ');
-        const grid = [0, 50, 100].map(v => `<line x1="${P}" x2="${W - P}" y1="${y(v)}" y2="${y(v)}" stroke="#30363d" stroke-dasharray="4"/><text x="4" y="${y(v) + 4}" fill="#8b949e" font-size="11">${v}</text>`).join('');
-        const dots = points.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.score)}" r="4" fill="${scoreColor(p.score)}"/><text x="${x(i)}" y="${y(p.score) - 9}" fill="#c9d1d9" font-size="11" text-anchor="middle">${p.score}</text>`).join('');
-        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;" role="img" aria-label="Score trend chart">${grid}<polyline points="${line}" fill="none" stroke="#58a6ff" stroke-width="2"/>${dots}</svg>`;
+        const grid = [0, 50, 100].map(v => `<line x1="${P}" x2="${W - P}" y1="${y(v)}" y2="${y(v)}" stroke="#30363d" stroke-dasharray="4"/><text x="4" y="${y(v) + 4}" fill="#6b6455" font-size="11">${v}</text>`).join('');
+        const dots = points.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.score)}" r="4" fill="${scoreColor(p.score)}"/><text x="${x(i)}" y="${y(p.score) - 9}" fill="#3a352c" font-size="11" text-anchor="middle">${p.score}</text>`).join('');
+        return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;" role="img" aria-label="Score trend chart">${grid}<polyline points="${line}" fill="none" stroke="#5b3fd1" stroke-width="2"/>${dots}</svg>`;
     }
 
     function renderDashboard() {
@@ -77,7 +77,7 @@
         if (!out) return;
         const h = getHistory();
         if (!h.length) {
-            out.innerHTML = '<div class="panel-card"><p style="color:#8b949e;">No data yet. Run a scan in the Website Audit tab and the dashboard will fill in.</p></div>';
+            out.innerHTML = '<div class="panel-card"><p style="color:#6b6455;">No data yet. Run a scan in the Website Audit tab and the dashboard will fill in.</p></div>';
             return;
         }
         const scores = h.map(r => r.score);
@@ -91,33 +91,33 @@
             byType[i.type] = (byType[i.type] || 0) + 1;
             bySev[i.severity] = (bySev[i.severity] || 0) + 1;
         });
-        const typeColors = { Link: '#58a6ff', Security: '#f85149', SEO: '#a371f7', Accessibility: '#3fb950', Performance: '#f0883e' };
+        const typeColors = { Link: '#5b3fd1', Security: '#d1242f', SEO: '#a371f7', Accessibility: '#1a7f37', Performance: '#f0883e' };
         const trend = h.slice(0, 10).reverse();
 
         out.innerHTML = `
             <div class="stat-grid">
                 ${statCard('Total scans', h.length)}
                 ${statCard('Average score', avg + '/100', scoreColor(avg))}
-                ${statCard('Best score', Math.max(...scores) + '/100', '#3fb950')}
+                ${statCard('Best score', Math.max(...scores) + '/100', '#1a7f37')}
                 ${statCard('Latest score', latest.score + '/100', scoreColor(latest.score))}
-                ${statCard('Open bugs', openBugs, openBugs ? '#f0883e' : '#3fb950')}
-                ${(() => { const t = testStats(getTests()); return statCard('Test pass rate', t.rate === null ? '—' : t.rate + '%', t.rate === null ? '#8b949e' : scoreColor(t.rate)); })()}
+                ${statCard('Open bugs', openBugs, openBugs ? '#f0883e' : '#1a7f37')}
+                ${(() => { const t = testStats(getTests()); return statCard('Test pass rate', t.rate === null ? '—' : t.rate + '%', t.rate === null ? '#6b6455' : scoreColor(t.rate)); })()}
             </div>
             <div class="panel-card"><h3>Score trend (last ${trend.length} scans)</h3>${trendSvg(trend)}</div>
             <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-                <div class="panel-card" style="margin:0;"><h3>Issues by category (latest scan)</h3>${barRows(byType, k => typeColors[k] || '#8b949e')}</div>
-                <div class="panel-card" style="margin:0;"><h3>Issues by severity (latest scan)</h3>${barRows(bySev, k => SEV_COLOR[k] || '#8b949e')}</div>
+                <div class="panel-card" style="margin:0;"><h3>Issues by category (latest scan)</h3>${barRows(byType, k => typeColors[k] || '#6b6455')}</div>
+                <div class="panel-card" style="margin:0;"><h3>Issues by severity (latest scan)</h3>${barRows(bySev, k => SEV_COLOR[k] || '#6b6455')}</div>
             </div>
-            <p style="color:#8b949e; font-size:13px; margin-top:12px;">Latest scan: ${escapeHtml(latest.url)}</p>`;
+            <p style="color:#6b6455; font-size:13px; margin-top:12px;">Latest scan: ${escapeHtml(latest.url)}</p>`;
     }
 
     /* ---------- Performance ---------- */
     function rate(value, good, ok) { return value <= good ? 'good' : value <= ok ? 'ok' : 'poor'; }
-    const RATE_COLOR = { good: '#3fb950', ok: '#eab308', poor: '#f85149' };
+    const RATE_COLOR = { good: '#1a7f37', ok: '#b7791f', poor: '#d1242f' };
 
     function perfCard(label, display, rating, hint) {
         return `<div class="stat"><span>${label}</span><strong style="color:${RATE_COLOR[rating]}">${display}</strong>
-            <div style="font-size:11px; color:#8b949e; margin-top:4px;">${hint}</div></div>`;
+            <div style="font-size:11px; color:#6b6455; margin-top:4px;">${hint}</div></div>`;
     }
 
     function renderPerfDetails() {
@@ -126,7 +126,7 @@
         const scan = getHistory()[parseInt(sel.value, 10)];
         const m = scan && scan.performance;
         if (!m) {
-            out.innerHTML = '<div class="panel-card"><p style="color:#8b949e;">No performance data. Run a new scan in the Website Audit tab.</p></div>';
+            out.innerHTML = '<div class="panel-card"><p style="color:#6b6455;">No performance data. Run a new scan in the Website Audit tab.</p></div>';
             return;
         }
         const perfIssues = (scan.issues || []).filter(i => i.type === 'Performance');
@@ -145,7 +145,7 @@
                     <span>Cache-Control</span><span>${escapeHtml(m.cacheControl)}</span>
                 </div></div>
             <div class="panel-card"><h3>Performance recommendations (${perfIssues.length})</h3>
-                ${perfIssues.length ? perfIssues.map(i => `<div class="issue-card"><strong>[${escapeHtml(i.severity)}]</strong> ${escapeHtml(i.message)}<br><small><strong>Fix:</strong> ${escapeHtml(i.fix)}</small></div>`).join('') : '<p style="color:#3fb950;">No performance problems found.</p>'}
+                ${perfIssues.length ? perfIssues.map(i => `<div class="issue-card"><strong>[${escapeHtml(i.severity)}]</strong> ${escapeHtml(i.message)}<br><small><strong>Fix:</strong> ${escapeHtml(i.fix)}</small></div>`).join('') : '<p style="color:#1a7f37;">No performance problems found.</p>'}
             </div>`;
     }
 
@@ -170,16 +170,16 @@
         const filter = $('bugFilter').value;
         const bugs = getBugs().filter(b => filter === 'All' || b.status === filter);
         if (!bugs.length) {
-            list.innerHTML = '<p style="color:#8b949e;">No bugs to show.</p>';
+            list.innerHTML = '<p style="color:#6b6455;">No bugs to show.</p>';
             return;
         }
         list.innerHTML = bugs.map(b => `
             <div class="bug-item ${b.status === 'Fixed' ? 'fixed' : ''}">
                 <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-                    <strong style="color:#fff; word-break:break-word;">${escapeHtml(b.title)}</strong>
-                    <span class="pill" style="background:${SEV_COLOR[b.severity] || '#8b949e'}; color:#0d1117;">${escapeHtml(b.severity)}</span>
+                    <strong style="color:#17130f; word-break:break-word;">${escapeHtml(b.title)}</strong>
+                    <span class="pill" style="background:${SEV_COLOR[b.severity] || '#6b6455'}; color:#0d1117;">${escapeHtml(b.severity)}</span>
                 </div>
-                ${b.notes ? `<p style="white-space:pre-wrap; font-size:13px; color:#8b949e; margin:8px 0; word-break:break-word;">${escapeHtml(b.notes)}</p>` : ''}
+                ${b.notes ? `<p style="white-space:pre-wrap; font-size:13px; color:#6b6455; margin:8px 0; word-break:break-word;">${escapeHtml(b.notes)}</p>` : ''}
                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                     <select class="qa-select bug-status" data-id="${b.id}" style="width:auto;">
                         ${['Open', 'In Progress', 'Fixed'].map(s => `<option ${s === b.status ? 'selected' : ''}>${s}</option>`).join('')}
@@ -245,7 +245,7 @@
             }
 
             btn.disabled = true;
-            out.innerHTML = '<p style="color:#8b949e;">Sending request...</p>';
+            out.innerHTML = '<p style="color:#6b6455;">Sending request...</p>';
             try {
                 const resp = await fetch('/api/test-api', {
                     method: 'POST',
@@ -262,13 +262,13 @@
                 });
                 const d = await resp.json();
                 if (!resp.ok) {
-                    out.innerHTML = `<p style="color:#f85149;">Error: ${escapeHtml(d.error || 'Request failed')}</p>`;
+                    out.innerHTML = `<p style="color:#d1242f;">Error: ${escapeHtml(d.error || 'Request failed')}</p>`;
                     return;
                 }
-                const statusColor = d.status < 300 ? '#3fb950' : d.status < 400 ? '#eab308' : '#f85149';
+                const statusColor = d.status < 300 ? '#1a7f37' : d.status < 400 ? '#b7791f' : '#d1242f';
                 const checks = d.checks.length
-                    ? d.checks.map(c => `<div style="margin-bottom:6px;">${c.passed ? '✅' : '❌'} ${escapeHtml(c.name)} <span style="color:#8b949e;">${escapeHtml(c.detail)}</span></div>`).join('')
-                    : '<p style="color:#8b949e;">No assertions set.</p>';
+                    ? d.checks.map(c => `<div style="margin-bottom:6px;">${c.passed ? '<span style="color:#1a7f37">' + qaIcon('check-circle') + '</span>' : '<span style="color:#d1242f">' + qaIcon('x-circle') + '</span>'} ${escapeHtml(c.name)} <span style="color:#6b6455;">${escapeHtml(c.detail)}</span></div>`).join('')
+                    : '<p style="color:#6b6455;">No assertions set.</p>';
                 const hdrs = Object.entries(d.headers || {}).map(([k, v]) => `${k}: ${v}`).join('\n');
                 out.innerHTML = `
                     <div class="stat-grid">
@@ -280,38 +280,44 @@
                     <div class="panel-card"><h3>Response headers</h3><pre class="code">${escapeHtml(hdrs)}</pre></div>
                     <div class="panel-card"><h3>Body preview</h3><pre class="code">${escapeHtml(d.bodyPreview || '(empty)')}</pre></div>`;
             } catch (err) {
-                out.innerHTML = '<p style="color:#f85149;">Failed to connect to the server.</p>';
+                out.innerHTML = '<p style="color:#d1242f;">Failed to connect to the server.</p>';
             } finally {
                 btn.disabled = false;
             }
         });
     }
 
-    /* ---------- PDF export (browser print dialog -> Save as PDF) ---------- */
-    function exportPdf(data) {
-        const w = window.open('', '_blank');
-        if (!w) { alert('Please allow pop-ups to export the PDF.'); return; }
-        const m = data.performance;
-        const rows = (data.issues || []).map(i => `
-            <tr><td>${escapeHtml(i.type)}</td><td>${escapeHtml(i.severity)}</td><td>${escapeHtml(i.message)}</td><td>${escapeHtml(i.fix)}</td></tr>`).join('');
-        w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>QA Scout Report</title>
-            <style>
-                body{font-family:Arial,sans-serif;color:#111;margin:30px;}
-                h1{margin-bottom:4px;} .meta{color:#555;margin-bottom:20px;}
-                .score{font-size:34px;font-weight:bold;color:${data.score >= 80 ? '#1a7f37' : data.score >= 50 ? '#9a6700' : '#cf222e'};}
-                table{border-collapse:collapse;width:100%;margin-top:10px;font-size:12px;}
-                th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top;}
-                th{background:#f0f0f0;} td:nth-child(3),td:nth-child(4){word-break:break-word;}
-            </style></head><body>
-            <h1>QA Scout Report</h1>
-            <div class="meta">${escapeHtml(data.url)}<br>Scanned: ${escapeHtml(new Date(data.scannedAt || Date.now()).toLocaleString())}</div>
-            <div>Overall score: <span class="score">${escapeHtml(data.score)}/100</span></div>
-            ${m ? `<h3>Performance</h3><p>Download time: ${m.loadTimeMs} ms &middot; HTML size: ${m.htmlSizeKb} KB &middot; Estimated requests: ${m.estimatedRequests} &middot; Compression: ${escapeHtml(m.compression)}</p>` : ''}
-            <h3>Issues (${(data.issues || []).length})</h3>
-            ${rows ? `<table><thead><tr><th>Category</th><th>Severity</th><th>Issue</th><th>Suggested fix</th></tr></thead><tbody>${rows}</tbody></table>` : '<p>No issues found.</p>'}
-            <script>window.onload=function(){window.print();};<\/script>
-            </body></html>`);
-        w.document.close();
+    /* ---------- PDF export (professional report generated on the server, downloaded directly) ---------- */
+    async function exportPdf(data) {
+        const btn = document.getElementById('downloadPdfBtn');
+        const original = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.innerHTML = qaIcon('loader', 'spin') + ' Preparing PDF...'; }
+        try {
+            const resp = await fetch('/api/report/pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: data.url, score: data.score, scannedAt: data.scannedAt, performance: data.performance, issues: data.issues })
+            });
+            if (!resp.ok) {
+                let msg = 'Could not generate the PDF report.';
+                try { msg = (await resp.json()).error || msg; } catch (e) { /* keep default */ }
+                throw new Error(msg);
+            }
+            const blob = await resp.blob();
+            const cd = resp.headers.get('Content-Disposition') || '';
+            const m = cd.match(/filename="?([^";]+)"?/i);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = m ? m[1] : 'qa-scout-report.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        } catch (err) {
+            alert(err.message || 'Could not generate the PDF report.');
+        } finally {
+            if (btn) { btn.disabled = false; btn.innerHTML = original; }
+        }
     }
 
 
@@ -343,31 +349,31 @@
     }
 
     async function aiSummary(scan, box, btn) {
-        const label = btn.textContent;
-        btn.disabled = true; btn.textContent = '✨ Thinking...';
+        const label = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = qaIcon('loader', 'spin') + ' Thinking...';
         box.innerHTML = '';
         const r = await aiPost('/api/ai/summary', { url: scan.url, score: scan.score, issues: scan.issues, performance: scan.performance });
-        btn.disabled = false; btn.textContent = label;
-        if (!r.ok) { box.innerHTML = `<div class="ai-box" style="color:#f85149;">${escapeHtml(r.error)}</div>`; return; }
+        btn.disabled = false; btn.innerHTML = label;
+        if (!r.ok) { box.innerHTML = `<div class="ai-box" style="color:#d1242f;">${escapeHtml(r.error)}</div>`; return; }
         const sm = r.data.summary || {};
         const fixes = Array.isArray(sm.topFixes) ? sm.topFixes : [];
         box.innerHTML = `<div class="ai-box">
-            <strong style="color:#fff;">✨ AI Summary</strong>
+            <strong style="color:#17130f;">${qaIcon('sparkles')} AI Summary</strong>
             <p style="margin:8px 0;">${escapeHtml(sm.overview)}</p>
-            ${fixes.length ? '<h4>Fix these first</h4>' + fixes.map((f, i) => `<p style="margin:6px 0;"><strong>${i + 1}. ${escapeHtml(f.title)}</strong><br><span style="color:#8b949e;">Why:</span> ${escapeHtml(f.why)}<br><span style="color:#8b949e;">How:</span> ${escapeHtml(f.how)}</p>`).join('') : ''}
+            ${fixes.length ? '<h4>Fix these first</h4>' + fixes.map((f, i) => `<p style="margin:6px 0;"><strong>${i + 1}. ${escapeHtml(f.title)}</strong><br><span style="color:#6b6455;">Why:</span> ${escapeHtml(f.why)}<br><span style="color:#6b6455;">How:</span> ${escapeHtml(f.how)}</p>`).join('') : ''}
             ${sm.positives ? `<h4>What is already good</h4><p style="margin:4px 0;">${escapeHtml(sm.positives)}</p>` : ''}
             <small style="color:#6e7681;">AI-generated advice. Always verify before changing production.</small></div>`;
     }
 
     async function aiFix(issue, url, box, btn) {
-        const label = btn.textContent;
-        btn.disabled = true; btn.textContent = '✨ Thinking...';
+        const label = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = qaIcon('loader', 'spin') + ' Thinking...';
         box.innerHTML = '';
         const r = await aiPost('/api/ai/fix', { url, issue });
-        btn.disabled = false; btn.textContent = label;
+        btn.disabled = false; btn.innerHTML = label;
         box.innerHTML = r.ok
             ? `<div class="ai-box">${mdLite(r.data.fix)}</div>`
-            : `<div class="ai-box" style="color:#f85149;">${escapeHtml(r.error)}</div>`;
+            : `<div class="ai-box" style="color:#d1242f;">${escapeHtml(r.error)}</div>`;
     }
 
     /* ---------- Test Case Manager ---------- */
@@ -399,37 +405,37 @@
         $('tcSummary').innerHTML = all.length ? `
             <div class="stat-grid">
                 ${statCard('Total', st.total)}
-                ${statCard('Passed', st.pass, '#3fb950')}
-                ${statCard('Failed', st.fail, st.fail ? '#f85149' : '#fff')}
-                ${statCard('Not run', st.notRun, '#8b949e')}
-                ${statCard('Pass rate', st.rate === null ? '—' : st.rate + '%', st.rate === null ? '#8b949e' : scoreColor(st.rate))}
+                ${statCard('Passed', st.pass, '#1a7f37')}
+                ${statCard('Failed', st.fail, st.fail ? '#d1242f' : '#fff')}
+                ${statCard('Not run', st.notRun, '#6b6455')}
+                ${statCard('Pass rate', st.rate === null ? '—' : st.rate + '%', st.rate === null ? '#6b6455' : scoreColor(st.rate))}
             </div>
             <div class="progress"><div style="width:${st.total ? Math.round((st.pass / st.total) * 100) : 0}%"></div></div>` : '';
 
         const filter = $('tcFilter').value;
         const shown = all.filter(t => filter === 'All' || t.status === filter);
         if (!shown.length) {
-            listEl.innerHTML = `<p style="color:#8b949e;">${all.length ? 'No test cases match this filter.' : 'No test cases yet. Generate some with AI or add one manually.'}</p>`;
+            listEl.innerHTML = `<p style="color:#6b6455;">${all.length ? 'No test cases match this filter.' : 'No test cases yet. Generate some with AI or add one manually.'}</p>`;
             return;
         }
-        const prColor = { High: '#f85149', Medium: '#eab308', Low: '#58a6ff' };
+        const prColor = { High: '#d1242f', Medium: '#b7791f', Low: '#5b3fd1' };
         listEl.innerHTML = shown.map(t => `
             <div class="tc-case ${t.status === 'Pass' ? 'pass' : t.status === 'Fail' ? 'fail' : ''}">
                 <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-                    <strong style="color:#fff; word-break:break-word;">${escapeHtml(t.id)} &middot; ${escapeHtml(t.title)}</strong>
+                    <strong style="color:#17130f; word-break:break-word;">${escapeHtml(t.id)} &middot; ${escapeHtml(t.title)}</strong>
                     <span>
-                        ${t.source === 'AI' ? '<span class="pill" style="background:#8957e5; color:#fff;">✨ AI</span> ' : ''}
-                        <span class="pill" style="background:#30363d; color:#c9d1d9;">${escapeHtml(t.type)}</span>
-                        <span class="pill" style="background:${prColor[t.priority] || '#8b949e'}; color:#0d1117;">${escapeHtml(t.priority)}</span>
+                        ${t.source === 'AI' ? '<span class="pill" style="background:#8957e5; color:#fff;">' + qaIcon('sparkles') + ' AI</span> ' : ''}
+                        <span class="pill" style="background:#30363d; color:#3a352c;">${escapeHtml(t.type)}</span>
+                        <span class="pill" style="background:${prColor[t.priority] || '#6b6455'}; color:#0d1117;">${escapeHtml(t.priority)}</span>
                     </span>
                 </div>
                 ${t.steps && t.steps.length ? `<ol>${t.steps.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>` : ''}
-                ${t.expected ? `<p style="font-size:13px; color:#8b949e; margin:4px 0 8px;"><strong style="color:#c9d1d9;">Expected:</strong> ${escapeHtml(t.expected)}</p>` : ''}
+                ${t.expected ? `<p style="font-size:13px; color:#6b6455; margin:4px 0 8px;"><strong style="color:#3a352c;">Expected:</strong> ${escapeHtml(t.expected)}</p>` : ''}
                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                     <select class="qa-select tc-status" data-id="${escapeHtml(t.id)}" style="width:auto;">
                         ${['Not Run', 'Pass', 'Fail'].map(x => `<option ${x === t.status ? 'selected' : ''}>${x}</option>`).join('')}
                     </select>
-                    ${t.status === 'Fail' ? `<button class="btn-small tc-bug" data-id="${escapeHtml(t.id)}" ${t.bugLogged ? 'disabled' : ''}>${t.bugLogged ? '✅ Bug logged' : '🐞 Log bug'}</button>` : ''}
+                    ${t.status === 'Fail' ? `<button class="btn-small tc-bug" data-id="${escapeHtml(t.id)}" ${t.bugLogged ? 'disabled' : ''}>${t.bugLogged ? qaIcon('check') + ' Bug logged' : qaIcon('bug') + ' Log bug'}</button>` : ''}
                     <button class="btn-small tc-del" data-id="${escapeHtml(t.id)}">Delete</button>
                 </div>
             </div>`).join('');
@@ -453,17 +459,17 @@
         $('aiGenBtn').addEventListener('click', async () => {
             const feature = $('aiFeature').value.trim();
             const msg = $('aiGenMsg');
-            if (feature.length < 5) { msg.style.color = '#f85149'; msg.textContent = 'Please describe the feature first.'; return; }
+            if (feature.length < 5) { msg.style.color = '#d1242f'; msg.textContent = 'Please describe the feature first.'; return; }
             const btn = $('aiGenBtn');
-            btn.disabled = true; btn.textContent = '✨ Generating...';
-            msg.style.color = '#8b949e'; msg.textContent = 'This can take a few seconds.';
+            btn.disabled = true; btn.innerHTML = qaIcon('loader', 'spin') + ' Generating...';
+            msg.style.color = '#6b6455'; msg.textContent = 'This can take a few seconds.';
             const r = await aiPost('/api/ai/testcases', { feature, count: $('aiCount').value });
-            btn.disabled = false; btn.textContent = '✨ Generate with AI';
-            if (!r.ok) { msg.style.color = '#f85149'; msg.textContent = r.error; return; }
+            btn.disabled = false; btn.innerHTML = qaIcon('sparkles') + ' Generate with AI';
+            if (!r.ok) { msg.style.color = '#d1242f'; msg.textContent = r.error; return; }
             const cases = r.data.testCases || [];
-            if (!cases.length) { msg.style.color = '#f85149'; msg.textContent = 'The AI returned no test cases. Try describing the feature in more detail.'; return; }
+            if (!cases.length) { msg.style.color = '#d1242f'; msg.textContent = 'The AI returned no test cases. Try describing the feature in more detail.'; return; }
             addTests(cases.map(c => ({ ...c, source: 'AI' })));
-            msg.style.color = '#3fb950';
+            msg.style.color = '#1a7f37';
             msg.textContent = `Added ${cases.length} AI test cases below. Review them and delete any you don't need.`;
             renderTests();
         });

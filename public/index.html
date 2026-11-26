@@ -3,14 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QA Scout - Website Quality Auditor</title>
-    <link rel="stylesheet" href="style.css">
+    <title>QA Scout - Free Website Audit &amp; Quality Checker</title>
+    <meta name="description" content="Free website audit: scan any public page for broken links, security headers, SEO, accessibility and performance issues.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+<symbol id="i-accessibility" viewBox="0 0 24 24"><circle cx="16" cy="4" r="1"/><path d="m18 19 1-7-6 1"/><path d="m5 8 3-3 5.5 3-2.36 3.5"/><path d="M4.24 14.5a5 5 0 0 0 6.88 6"/><path d="M13.76 17.5a5 5 0 0 0-6.88-6"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+<symbol id="i-bar-chart" viewBox="0 0 24 24"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
+<symbol id="i-bug" viewBox="0 0 24 24"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+<symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-octagon-alert" viewBox="0 0 24 24"><path d="M12 16h.01"/><path d="M12 8v4"/><path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/></symbol>
+<symbol id="i-thumbs-up" viewBox="0 0 24 24"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></symbol>
+<symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+<symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+<symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+<symbol id="i-table" viewBox="0 0 24 24"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></symbol>
+<symbol id="i-braces" viewBox="0 0 24 24"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></symbol>
+<symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></symbol>
+<symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+</svg>
     <!-- Top Navigation Bar -->
     <header class="navbar">
-        <div class="logo">QA <strong>Scout</strong></div>
-        <nav class="nav-links">
+        <a class="logo" href="#audit" aria-label="QA Scout home"><span class="logo-mark">QA</span><span>QA <strong>Scout</strong></span></a>
+        <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Toggle menu"><svg class="ic m-open" aria-hidden="true"><use href="#i-menu"/></svg><svg class="ic m-close" aria-hidden="true"><use href="#i-x"/></svg><span>Menu</span></button>
+        <nav class="nav-links" id="mainNav">
             <a href="#audit" class="nav-tab active" data-target="audit-view">Website Audit</a>
             <a href="#dashboard" class="nav-tab" data-target="dashboard-view">Dashboard</a>
             <a href="#performance" class="nav-tab" data-target="performance-view">Performance</a>
@@ -29,72 +64,141 @@
             
             <!-- 1. Website Audit View (Default) -->
             <div id="audit-view" class="view-panel">
-                
-                <!-- Status & Capabilities Summary Banner -->
-                <div class="status-summary-banner">
-                    <div style="flex: 1;">
-                        <h3 style="color: #fff; margin-bottom: 8px; font-size: 16px;">🔍 Full-Stack Quality Engineering Utility</h3>
-                        <p style="color: #c9d1d9; font-size: 14px; line-height: 1.6; margin: 0;">Validate links, security headers, accessibility, and SEO in one click. Deploy with confidence or practice testing—100% Free.</p>
+
+                <section class="hero">
+                    <span class="hero-badge"><i class="dot"></i> 5 CHECKS · 1 CLICK · FREE</span>
+                    <h1>
+                        <span class="mask"><span class="rise" style="--i:0">Website audit:</span></span>
+                        <span class="mask"><span class="rise" style="--i:1">how good is your site,</span></span>
+                        <span class="mask"><span class="rise accent" style="--i:2">really?</span></span>
+                    </h1>
+                    <p class="lead rise-soft" style="--i:3">Free website audit for any public page. Find broken links, missing security headers, SEO gaps, accessibility problems and slow loading, then get a score out of 100 with a fix for every issue.</p>
+
+                    <div class="search-box rise-soft" style="--i:4">
+                        <input type="text" id="urlInput" placeholder="enter your website url…" autocomplete="url" aria-label="Website URL">
+                        <button id="scanBtn">Run QA Scan <span class="arrow"><svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></span></button>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #238636; box-shadow: 0 0 5px rgba(35,134,54,0.6);"></div>
-                        <a href="#audit" class="nav-tab active" data-target="audit-view" style="padding: 9px 16px; background: #2ea043; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: none;">Launch Scanner</a>
-                    </div>
-                </div>
 
-                <div class="hero-banner">
-                    <span class="hero-badge">✨ Free · No sign-up · Instant results</span>
-                    <h1>Audit your site for <span class="grad-text">critical issues</span> in one click</h1>
-                    <p>Scan your website for broken links, security headers, accessibility, SEO, and performance issues.</p>
-                </div>
-
-                <div class="feature-grid">
-                    <div class="feature-chip"><span class="ico">🔗</span><b>Links</b><small>Find broken URLs</small></div>
-                    <div class="feature-chip"><span class="ico">🛡️</span><b>Security</b><small>Check HTTP headers</small></div>
-                    <div class="feature-chip"><span class="ico">📈</span><b>SEO</b><small>Meta &amp; structure</small></div>
-                    <div class="feature-chip"><span class="ico">♿</span><b>Accessibility</b><small>WCAG basics</small></div>
-                    <div class="feature-chip"><span class="ico">⚡</span><b>Performance</b><small>Speed &amp; weight</small></div>
-                </div>
-
-                <div class="search-box">
-                    <input type="text" id="urlInput" placeholder="https://example.com" autocomplete="url" aria-label="Website URL">
-                    <button id="scanBtn">Run QA Scan</button>
-                </div>
+                    <ul class="hero-notes rise-soft" style="--i:5">
+                        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> No sign-up, no credit card</li>
+                        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Instant score out of 100</li>
+                        <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Export as JSON, CSV or PDF</li>
+                    </ul>
+                </section>
 
                 <div id="loading" class="hidden">
                     <div class="spinner"></div>
-                    <p style="color: #8b949e; margin-top: 10px;">Scanning website, please wait...</p>
+                    <p>Scanning website, please wait…</p>
                 </div>
 
                 <div id="results" class="hidden">
-                    <h2 style="margin-bottom: 15px;">Scan Results</h2>
+                    <h2>Scan Results</h2>
                     <div id="output"></div>
                 </div>
+
+                <!-- Guideline -->
+                <section class="section" id="guideline">
+                    <div class="section-head reveal"><h2>Guideline: run a perfect audit</h2><span class="rule"></span><small>04 / STEPS</small></div>
+                    <p class="section-intro reveal">Follow these four steps to get a trustworthy score and a clear to-do list.</p>
+
+                    <ol class="steps">
+                        <li class="step reveal">
+                            <span class="step-num">01</span>
+                            <div class="step-body">
+                                <h3>Paste the exact page URL</h3>
+                                <p>Use the page your visitors actually land on, such as your homepage, a landing page or a product page. Include <code>https://</code>. Only public pages work; localhost and private addresses are blocked.</p>
+                            </div>
+                        </li>
+                        <li class="step reveal">
+                            <span class="step-num">02</span>
+                            <div class="step-body">
+                                <h3>Run the scan and wait a few seconds</h3>
+                                <p>QA Scout downloads the page once and checks links, security headers, SEO, accessibility and performance together. Most scans finish in under half a minute.</p>
+                            </div>
+                        </li>
+                        <li class="step reveal">
+                            <span class="step-num">03</span>
+                            <div class="step-body">
+                                <h3>Fix by severity, highest first</h3>
+                                <p>Start with Critical issues, then Major, Medium and Minor. Use <b class="inl"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> AI fix</b> for a suggested solution, <b class="inl"><svg class="ic" aria-hidden="true"><use href="#i-bug"/></svg> Log as bug</b> to track it, or export the report to share with your team.</p>
+                            </div>
+                        </li>
+                        <li class="step reveal">
+                            <span class="step-num">04</span>
+                            <div class="step-body">
+                                <h3>Re-scan and compare</h3>
+                                <p>Scan the same URL again after your changes. Open <a href="#comparison" class="nav-tab" data-target="comparison-view">Scan Comparison</a> to see your score move and which issues are gone.</p>
+                            </div>
+                        </li>
+                    </ol>
+
+                    <div class="tip-grid">
+                        <div class="tip reveal"><b class="inl"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg> Start with one page</b><span>A scan checks a single page. Audit your key pages separately.</span></div>
+                        <div class="tip reveal"><b class="inl"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg> Change one thing at a time</b><span>Fix one issue, scan again, and you will know what moved the score.</span></div>
+                        <div class="tip reveal"><b class="inl"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg> Automated is not complete</b><span>A scan catches machine-detectable problems. Still test with a keyboard and a screen reader.</span></div>
+                    </div>
+                </section>
+
+                <!-- What we check -->
+                <section class="section" id="checks">
+                    <div class="section-head reveal"><h2>What our free website audit checks</h2><span class="rule"></span><small>05 / DIMENSIONS</small></div>
+                    <div class="check-grid">
+                        <article class="check-card reveal"><span class="idx">01</span><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg></span><h3>Links</h3><p>Broken, redirected and unreachable URLs found on the page.</p><a href="#faq" class="more">Links FAQ <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></article>
+                        <article class="check-card reveal"><span class="idx">02</span><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></span><h3>Security</h3><p>HTTPS and the HTTP security headers browsers rely on.</p><a href="#faq" class="more">Security FAQ <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></article>
+                        <article class="check-card reveal"><span class="idx">03</span><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg></span><h3>SEO</h3><p>Title, meta description, headings and crawlability basics.</p><a href="#faq" class="more">SEO FAQ <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></article>
+                        <article class="check-card reveal"><span class="idx">04</span><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-accessibility"/></svg></span><h3>Accessibility</h3><p>Alt text, labels and other machine-detectable WCAG basics.</p><a href="#faq" class="more">Accessibility FAQ <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></article>
+                        <article class="check-card reveal"><span class="idx">05</span><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-zap"/></svg></span><h3>Performance</h3><p>Load time, page weight, requests, compression and caching.</p><a href="#faq" class="more">Performance FAQ <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></article>
+                    </div>
+
+                    <div class="cta-banner reveal">
+                        <span class="cta-ico"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"/></svg></span>
+                        <div><h3>Track your progress</h3><p>Every scan is saved in your browser. Watch your scores improve on the dashboard.</p></div>
+                        <a href="#dashboard" class="nav-tab cta-btn" data-target="dashboard-view">Open dashboard <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+                    </div>
+                </section>
+
+                <!-- FAQ -->
+                <section class="section" id="faq">
+                    <div class="section-head reveal"><h2>Frequently asked questions</h2><span class="rule"></span><small>FAQ</small></div>
+                    <div class="faq-list">
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>Is QA Scout really free?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>Yes. There is no sign-up and no payment. The tool is open source under the MIT licence.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>Does it scan my whole website or just one page?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>One page per scan: the exact URL you enter. It reads that page's HTML and headers, and checks up to the first 15 links found on it. To audit other pages, scan them one by one.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>How is the score out of 100 calculated?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>Every scan starts from 100 and points are deducted for each issue found, with higher-severity issues costing more. 90 and above is excellent, 80 to 89 is good, 50 to 79 needs work, and below 50 means serious problems.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>What does QA Scout check?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>Five areas: links, security headers, SEO, accessibility and performance. Performance covers load time, page weight, number of requests, compression and caching.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>Can an automated scan prove my site is accessible?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>No. It finds machine-detectable problems such as missing alt text and form labels. Keyboard navigation, screen-reader use and meaningful wording still need manual testing.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>Why does it say a link is broken when it opens fine for me?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>Some sites block automated requests or respond slowly. Responses such as 401, 403 and 429 usually mean the site blocked the scanner rather than that the link is dead. Open the link yourself to confirm before fixing it.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>Can I scan localhost or a site behind a login?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>No. Only public pages can be scanned. Localhost, private IP addresses and internal domains are blocked for security, and pages behind a login cannot be reached.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>Where is my scan history stored?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>In your own browser's local storage. It is not uploaded to an account. Clearing your browser data or using a different browser or device will remove or hide it, so export important reports as JSON, CSV or PDF.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>What do the AI Summary and AI fix buttons do?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>They send the scan findings to an AI model to write a plain-language summary and a suggested fix. Treat the suggestions as a starting point and test any change before publishing it.</p></div></div></div>
+                        <div class="faq-item reveal"><button class="faq-q" aria-expanded="false"><span>I see a "too many requests" message. What now?</span><i class="faq-icon" aria-hidden="true"></i></button><div class="faq-a"><div><p>The server limits how many requests one connection can make in a short window. Wait a few minutes and try again.</p></div></div></div>
+                    </div>
+                </section>
             </div>
 
             <!-- 2. Scan History View -->
+
             <div id="history-view" class="view-panel hidden" style="text-align: left;">
                 <h2>Scan History</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Review past audits and generated report scores stored locally.</p>
-                <div id="historyOutput" style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d;">
-                    <p style="color: #8b949e;">No recent scan history found. Run your first audit to see it logged here!</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">Review past audits and generated report scores stored locally.</p>
+                <div id="historyOutput" style="background: #fffdf8; padding: 20px; border-radius: 8px; border: 1px solid #17130f;">
+                    <p style="color: #6b6455;">No recent scan history found. Run your first audit to see it logged here!</p>
                 </div>
             </div>
 
             <!-- 3. Test Case Manager View -->
             <div id="testcases-view" class="view-panel hidden" style="text-align: left;">
                 <h2>Test Case Manager</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Write test cases, mark them Pass or Fail, and track your pass rate. Let AI draft the test cases for you.</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">Write test cases, mark them Pass or Fail, and track your pass rate. Let AI draft the test cases for you.</p>
 
                 <div class="panel-card" style="border-left: 3px solid #a371f7;">
-                    <h3>✨ Generate test cases with AI</h3>
+                    <h3 class="inl"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Generate test cases with AI</h3>
                     <div class="form-row">
                         <div class="field" style="flex: 4;"><label for="aiFeature">Describe the feature to test</label>
                             <textarea id="aiFeature" placeholder="e.g. Login page with email and password, a 'Forgot password' link and a 'Remember me' checkbox"></textarea></div>
                         <div class="field" style="max-width: 130px;"><label for="aiCount">How many</label>
                             <select id="aiCount"><option>5</option><option selected>8</option><option>10</option><option>15</option></select></div>
                     </div>
-                    <button id="aiGenBtn" class="btn-green">✨ Generate with AI</button>
+                    <button id="aiGenBtn" class="btn-green"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Generate with AI</button>
                     <span id="aiGenMsg" style="margin-left: 10px; font-size: 13px;"></span>
                 </div>
 
@@ -124,18 +228,18 @@
             <!-- 4. Scan Comparison View -->
             <div id="comparison-view" class="view-panel hidden" style="text-align: left;">
                 <h2>Scan Comparison (Before vs. After)</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Select two past audits to evaluate score improvements and verify fixed issues.</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">Select two past audits to evaluate score improvements and verify fixed issues.</p>
                 
-                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                <div style="background: #fffdf8; padding: 20px; border-radius: 8px; border: 1px solid #17130f; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
                     <div style="flex: 1; min-width: 200px;">
-                        <label style="display: block; color: #8b949e; margin-bottom: 5px; font-size: 13px;">Baseline Scan (Before):</label>
-                        <select id="compareScanA" style="width: 100%; padding: 8px; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px;">
+                        <label style="display: block; color: #6b6455; margin-bottom: 5px; font-size: 13px;">Baseline Scan (Before):</label>
+                        <select id="compareScanA" style="width: 100%; padding: 8px; background: #f3eee3; color: #17130f; border: 1px solid #17130f; border-radius: 6px;">
                             <option value="">Load history first...</option>
                         </select>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
-                        <label style="display: block; color: #8b949e; margin-bottom: 5px; font-size: 13px;">Recent Scan (After):</label>
-                        <select id="compareScanB" style="width: 100%; padding: 8px; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px;">
+                        <label style="display: block; color: #6b6455; margin-bottom: 5px; font-size: 13px;">Recent Scan (After):</label>
+                        <select id="compareScanB" style="width: 100%; padding: 8px; background: #f3eee3; color: #17130f; border: 1px solid #17130f; border-radius: 6px;">
                             <option value="">Load history first...</option>
                         </select>
                     </div>
@@ -145,7 +249,7 @@
                 </div>
 
                 <div id="comparisonOutput">
-                    <p style="color: #8b949e;">Select two scans above and click compare to view progress metrics.</p>
+                    <p style="color: #6b6455;">Select two scans above and click compare to view progress metrics.</p>
                 </div>
             </div>
 
@@ -153,14 +257,14 @@
             <!-- Dashboard View -->
             <div id="dashboard-view" class="view-panel hidden" style="text-align: left;">
                 <h2>QA Dashboard</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Overview of your scan scores, issue categories and bug progress.</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">Overview of your scan scores, issue categories and bug progress.</p>
                 <div id="dashboardOutput"></div>
             </div>
 
             <!-- Performance View -->
             <div id="performance-view" class="view-panel hidden" style="text-align: left;">
                 <h2>Performance Analysis</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Load time, page weight, requests, compression and caching for a past scan.</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">Load time, page weight, requests, compression and caching for a past scan.</p>
                 <div class="panel-card">
                     <div class="field"><label for="perfScanSelect">Choose a scan</label><select id="perfScanSelect" class="qa-select"></select></div>
                 </div>
@@ -170,7 +274,7 @@
             <!-- Bug Tracker View -->
             <div id="bugs-view" class="view-panel hidden" style="text-align: left;">
                 <h2>Bug Tracker</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Log bugs found during testing and track them from Open to Fixed. You can also log bugs straight from scan results.</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">Log bugs found during testing and track them from Open to Fixed. You can also log bugs straight from scan results.</p>
                 <div class="panel-card">
                     <h3>Report a new bug</h3>
                     <div class="form-row">
@@ -192,7 +296,7 @@
             <!-- API Tester View -->
             <div id="apitester-view" class="view-panel hidden" style="text-align: left;">
                 <h2>API Tester</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">Send a request to a public API and check status code, response time and body.</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">Send a request to a public API and check status code, response time and body.</p>
                 <div class="panel-card">
                     <div class="form-row">
                         <div class="field" style="max-width:120px;"><label for="apiMethod">Method</label>
@@ -216,25 +320,25 @@
             <!-- 5. Open Source & About View -->
             <div id="opensource-view" class="view-panel hidden" style="text-align: left;">
                 <h2>About QA Scout & Open Source</h2>
-                <p style="color: #8b949e; margin-bottom: 20px;">A lightweight, zero-paywall website quality engineering utility built for developers, QA interns, and small businesses.</p>
+                <p style="color: #6b6455; margin-bottom: 20px;">A lightweight, zero-paywall website quality engineering utility built for developers, QA interns, and small businesses.</p>
                 
-                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 20px;">
-                    <h3 style="color: #fff; margin-bottom: 12px; font-size: 16px;">🚀 How to Use QA Scout in 3 Easy Steps</h3>
-                    <ol style="margin-left: 20px; color: #c9d1d9; font-size: 14px; line-height: 1.8;">
+                <div style="background: #fffdf8; padding: 20px; border-radius: 8px; border: 1px solid #17130f; margin-bottom: 20px;">
+                    <h3 style="color: #17130f; margin-bottom: 12px; font-size: 16px;"><svg class="ic" aria-hidden="true"><use href="#i-rocket"/></svg> How to Use QA Scout in 3 Easy Steps</h3>
+                    <ol style="margin-left: 20px; color: #3a352c; font-size: 14px; line-height: 1.8;">
                         <li><strong>Run Website Audit:</strong> Enter your public URL in the audit box to scan for broken links, security headers, SEO, and accessibility issues.</li>
                         <li><strong>Review & Export Reports:</strong> Check your overall score out of 100, read actionable fix instructions, and export structured reports as JSON or CSV.</li>
                         <li><strong>Track & Compare Progress:</strong> Monitor past audits in Scan History or evaluate score improvements side-by-side using the Scan Comparison tool.</li>
                     </ol>
                 </div>
 
-                <div style="background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                <div style="background: #fffdf8; padding: 20px; border-radius: 8px; border: 1px solid #17130f; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
                     <div>
-                        <span style="display: inline-block; padding: 4px 10px; background: #238636; color: #fff; border-radius: 4px; font-size: 12px; font-weight: 600; margin-right: 10px;">MIT License</span>
-                        <span style="color: #8b949e; font-size: 13px;">Built by Nethmi Kavindya (WhiteCoder QA Internship)</span>
+                        <span style="display: inline-block; padding: 4px 10px; background: #238636; color: #17130f; border-radius: 4px; font-size: 12px; font-weight: 600; margin-right: 10px;">MIT License</span>
+                        <span style="color: #6b6455; font-size: 13px;">Built by Nethmi Kavindya (WhiteCoder QA Internship)</span>
                     </div>
                     <div style="display: flex; gap: 15px;">
-                        <a href="mailto:nethmijayasingha3@gmail.com" style="color: #58a6ff; text-decoration: none; font-weight: 600; font-size: 14px;">✉️ Contact Creator</a>
-                        <a href="https://github.com/nethmikavi/QA-Scout-webtool" target="_blank" style="color: #58a6ff; text-decoration: none; font-weight: 600; font-size: 14px;">⭐ GitHub Repository &rarr;</a>
+                        <a href="mailto:nethmijayasingha3@gmail.com" style="color: #5b3fd1; text-decoration: none; font-weight: 600; font-size: 14px;"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg> Contact Creator</a>
+                        <a href="https://github.com/nethmikavi/QA-Scout-webtool" target="_blank" style="color: #5b3fd1; text-decoration: none; font-weight: 600; font-size: 14px;"><svg class="ic" aria-hidden="true"><use href="#i-github"/></svg> GitHub Repository</a>
                     </div>
                 </div>
             </div>
@@ -242,10 +346,10 @@
         </div>
     </main>
 
-    <footer class="site-footer">QA Scout · Built with ♥ by Nethmi Kavindya · <a href="#opensource">About &amp; Open Source</a></footer>
+    <footer class="site-footer">QA Scout · Built with <svg class="ic heart" aria-hidden="true"><use href="#i-heart"/></svg> by Nethmi Kavindya · <a href="#opensource">About &amp; Open Source</a></footer>
 
-    <script src="script.js?v=6"></script>
-    <script src="features.js?v=6"></script>
-    <script src="ui.js?v=6"></script>
+    <script src="script.js?v=7"></script>
+    <script src="features.js?v=7"></script>
+    <script src="ui.js?v=7"></script>
 </body>
 </html>
