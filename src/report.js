@@ -2,7 +2,7 @@
  * QA Scout - professional PDF report builder (A4, built with PDFKit).
  * Usage: buildReport(scanData, writableStream)
  */
-const PDFDocument = require('pdfkit');
+// pdfkit is loaded lazily (inside buildReport) so a PDF problem can never stop the server or the scanner from starting.
 
 /* ---------- palette ---------- */
 const C = {
@@ -65,6 +65,7 @@ function fmtDate(iso) {
 
 /* ---------- builder ---------- */
 function buildReport(data, stream) {
+    const PDFDocument = require('pdfkit');
     const issues = [...data.issues].sort((a, b) =>
         (SEV[a.severity] ? SEV[a.severity].weight : 9) - (SEV[b.severity] ? SEV[b.severity].weight : 9));
     const g = grade(data.score);

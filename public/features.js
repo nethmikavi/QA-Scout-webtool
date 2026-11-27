@@ -314,10 +314,74 @@
             a.remove();
             setTimeout(() => URL.revokeObjectURL(a.href), 4000);
         } catch (err) {
-            alert(err.message || 'Could not generate the PDF report.');
+            // Safety net: if the server cannot build the PDF, open a themed, print-ready report instead.
+            openPrintableReport(data);
         } finally {
             if (btn) { btn.disabled = false; btn.innerHTML = original; }
         }
+    }
+
+
+    /* ---------- Fallback: themed print-ready report (Print -> Save as PDF) ---------- */
+    function openPrintableReport(data) {
+        const w = window.open('', '_blank');
+        if (!w) { alert('The PDF service is unavailable and the browser blocked the fallback window. Please allow pop-ups and try again.'); return; }
+        const sevColor = { Critical: '#c62828', Major: '#e65100', Medium: '#b7791f', Minor: '#5b6b7a' };
+        const score = Number(data.score) || 0;
+        const gradeInfo = score >= 90 ? ['Excellent', '#1a7f37'] : score >= 80 ? ['Good', '#1a7f37'] : score >= 50 ? ['Needs work', '#b7791f'] : ['Critical', '#c62828'];
+        const issues = [...(data.issues || [])].sort((a, b) => Object.keys(sevColor).indexOf(a.severity) - Object.keys(sevColor).indexOf(b.severity));
+        const count = k => issues.filter(i => i.severity === k).length;
+        const m = data.performance;
+        const cards = issues.map((i, n) => `
+            <div class="issue" style="border-left-color:${sevColor[i.severity] || '#5b6b7a'}">
+                <div class="row"><span class="pill" style="background:${sevColor[i.severity] || '#5b6b7a'}">${escapeHtml(String(i.severity || 'Issue').toUpperCase())}</span>
+                <span class="cat">${escapeHtml(i.type)}</span><span class="num">#${String(n + 1).padStart(2, '0')}</span></div>
+                <p class="msg">${escapeHtml(i.message)}</p>
+                <div class="fixlabel">RECOMMENDED FIX</div><p class="fix">${escapeHtml(i.fix)}</p>
+            </div>`).join('');
+        w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>QA Scout Report</title>
+        <style>
+            @page { size: A4; margin: 14mm; }
+            * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { font-family: Arial, Helvetica, sans-serif; color: #17130f; margin: 0; padding: 24px; background: #fff; }
+            .band { background: #17130f; color: #fff; padding: 18px 22px; border-radius: 10px; border-bottom: 5px solid #6c4fd6; display: flex; align-items: center; justify-content: space-between; }
+            .logo { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
+            .mark { width: 38px; height: 38px; background: #6c4fd6; border: 2px solid #fff; border-radius: 9px; display: grid; place-items: center; font-size: 14px; }
+            .band small { color: #cfc8b8; letter-spacing: .08em; font-size: 10px; font-weight: 700; }
+            h1 { font-size: 26px; margin: 22px 0 4px; }
+            .url { color: #6c4fd6; font-weight: 700; word-break: break-all; }
+            .meta { color: #6b6455; font-size: 12px; margin: 4px 0 18px; }
+            .score { display: flex; align-items: center; gap: 22px; border: 2px solid #17130f; border-radius: 12px; box-shadow: 4px 4px 0 #17130f; padding: 18px 22px; margin-bottom: 22px; }
+            .big { font-size: 52px; font-weight: 700; color: ${gradeInfo[1]}; line-height: 1; }
+            .grade { font-size: 22px; font-weight: 700; color: ${gradeInfo[1]}; }
+            .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px; }
+            .box { border: 2px solid #17130f; border-radius: 8px; padding: 10px 12px; }
+            .box b { font-size: 22px; display: block; } .box span { font-size: 10px; color: #6b6455; font-weight: 700; letter-spacing: .05em; }
+            h2 { font-size: 15px; margin: 22px 0 10px; border-bottom: 2px solid #17130f; padding-bottom: 6px; }
+            .issue { border: 2px solid #17130f; border-left-width: 7px; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; page-break-inside: avoid; }
+            .row { display: flex; align-items: center; gap: 10px; } .num { margin-left: auto; color: #6b6455; font-size: 11px; }
+            .pill { color: #fff; font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 999px; } .cat { font-size: 10px; font-weight: 700; color: #6b6455; text-transform: uppercase; }
+            .msg { font-weight: 700; margin: 8px 0; font-size: 13px; } .fixlabel { color: #6c4fd6; font-size: 9px; font-weight: 700; letter-spacing: .06em; }
+            .fix { margin: 3px 0 0; font-size: 12px; color: #3a352c; }
+            .note { background: #ece6ff; border: 2px solid #17130f; border-radius: 8px; padding: 12px 14px; font-size: 11px; color: #3a352c; margin-top: 18px; }
+            footer { margin-top: 18px; color: #6b6455; font-size: 10px; text-align: center; }
+        </style></head><body>
+            <div class="band"><div class="logo"><span class="mark">QA</span>QA Scout</div><small>WEBSITE QUALITY REPORT</small></div>
+            <h1>Website Audit Report</h1>
+            <div class="url">${escapeHtml(data.url)}</div>
+            <div class="meta">Scanned: ${escapeHtml(new Date(data.scannedAt || Date.now()).toLocaleString())}</div>
+            <div class="score"><div class="big">${score}</div><div><div class="meta" style="margin:0">OVERALL RESULT &middot; out of 100</div><div class="grade">${gradeInfo[0]}</div><div style="font-size:12px">${issues.length} issue${issues.length === 1 ? '' : 's'} detected</div></div></div>
+            <div class="grid">${['Critical', 'Major', 'Medium', 'Minor'].map(k => `<div class="box" style="border-left:6px solid ${sevColor[k]}"><b style="color:${sevColor[k]}">${count(k)}</b><span>${k.toUpperCase()}</span></div>`).join('')}</div>
+            ${m ? `<h2>Performance snapshot</h2><div class="grid">
+                <div class="box"><b>${m.loadTimeMs} ms</b><span>DOWNLOAD TIME</span></div><div class="box"><b>${m.htmlSizeKb} KB</b><span>HTML SIZE</span></div>
+                <div class="box"><b>${m.estimatedRequests}</b><span>EST. REQUESTS</span></div><div class="box"><b>${escapeHtml(m.compression)}</b><span>COMPRESSION</span></div></div>` : ''}
+            <h2>Detailed findings (${issues.length})</h2>
+            ${cards || '<div class="issue" style="border-left-color:#1a7f37"><b>No issues found.</b> All automated checks passed.</div>'}
+            <div class="note"><b>How the score works:</b> every scan starts at 100; Critical -25, Major -12, Medium -8, Minor -5. This report covers one page and cannot replace manual accessibility, security and usability testing.</div>
+            <footer>Generated by QA Scout</footer>
+            <script>window.onload = function () { setTimeout(function () { window.print(); }, 300); };<\/script>
+        </body></html>`);
+        w.document.close();
     }
 
 
