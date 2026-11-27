@@ -130,8 +130,91 @@
         } catch (e) { /* ignore */ }
     }
 
+    /* ---- 6. Scan waiting experience (estimated progress, steps, tips, cancel) ---- */
+    function initScanLoader() {
+        try {
+            const box = document.getElementById('loading');
+            if (!box) return;
+            const fill = document.getElementById('scanFill'), pct = document.getElementById('scanPct');
+            const status = document.getElementById('scanStatus'), time = document.getElementById('scanTime');
+            const tipEl = document.getElementById('scanTip'), hostEl = document.getElementById('scanHost');
+            const mockUrl = document.getElementById('mockUrl');
+            const steps = Array.from(document.querySelectorAll('#scanSteps li'));
+            const scanBtn = document.getElementById('scanBtn');
+            const cancel = document.getElementById('cancelScanBtn');
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // step end-points (% of estimated progress) and what we tell the user
+            const ends = [8, 26, 42, 58, 72, 84, 94];
+            const msgs = ['Downloading the page...', 'Testing the links on the page...', 'Checking security headers...',
+                'Reading titles, meta tags and headings...', 'Looking for missing alt text and labels...',
+                'Measuring load time and page weight...', 'Calculating your score and writing fixes...'];
+            const tips = [
+                'Tip: fix Critical issues first. They cost the most points.',
+                'Tip: each scan checks one page and its first 15 links.',
+                'Tip: every scan is saved in Scan History in your browser.',
+                'Tip: export the report as PDF to share it with your team.',
+                'Tip: use AI fix on any issue for a suggested solution.',
+                'Tip: scan again after your changes and compare the scores.'
+            ];
+
+            let timer = null, tipTimer = null, t0 = 0, tipIdx = 0, btnHtml = null, active = false;
+
+            const paint = (p, sec) => {
+                const v = Math.max(0, Math.min(100, p));
+                fill.style.width = v.toFixed(1) + '%';
+                pct.textContent = Math.round(v) + '%';
+                time.textContent = Math.floor(sec) + 's';
+                let cur = ends.findIndex(e => v < e); if (cur === -1) cur = ends.length - 1;
+                steps.forEach((li, i) => { li.className = i < cur ? 'done' : (i === cur ? 'active' : ''); });
+                let msg = msgs[cur];
+                if (sec > 28) msg = 'Still working. Slow or very large pages can take up to 30 seconds...';
+                else if (sec > 14) msg = 'This page is taking a little longer. Hang tight...';
+                if (status.textContent !== msg) status.textContent = msg;
+            };
+
+            const showTip = () => {
+                tipEl.classList.add('swap');
+                setTimeout(() => { tipEl.textContent = tips[tipIdx++ % tips.length]; tipEl.classList.remove('swap'); }, reduce ? 0 : 250);
+            };
+
+            const start = () => {
+                if (active) return; active = true;
+                let h = (document.getElementById('urlInput').value || '').trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+                hostEl.textContent = h || 'your site'; mockUrl.textContent = h || 'your-site.com';
+                t0 = performance.now(); tipIdx = Math.floor(Math.random() * tips.length);
+                tipEl.textContent = tips[tipIdx++ % tips.length];
+                paint(0, 0);
+                timer = setInterval(() => {
+                    const sec = (performance.now() - t0) / 1000;
+                    paint(94 * (1 - Math.exp(-sec / 10)), sec);   // eases toward 94% and waits for the real result
+                }, 200);
+                tipTimer = setInterval(showTip, 4500);
+                if (scanBtn) { btnHtml = scanBtn.innerHTML; scanBtn.innerHTML = qaIcon('loader', 'spin') + ' Scanning...'; }
+                if (window.innerWidth < 900) setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+            };
+
+            const stop = () => {
+                if (!active) return; active = false;
+                clearInterval(timer); clearInterval(tipTimer);
+                if (scanBtn && btnHtml !== null) { scanBtn.innerHTML = btnHtml; btnHtml = null; }
+            };
+
+            new MutationObserver(() => { box.classList.contains('hidden') ? stop() : start(); })
+                .observe(box, { attributes: true, attributeFilter: ['class'] });
+            if (!box.classList.contains('hidden')) start();
+
+            cancel.addEventListener('click', () => {
+                cancel.disabled = true; status.textContent = 'Cancelling...';
+                if (window.__scanAbort) window.__scanAbort.abort();
+                setTimeout(() => { cancel.disabled = false; }, 800);
+            });
+        } catch (e) { /* the scan still works without the animation */ }
+    }
+
     function init() {
         try {
+            initScanLoader();
             initMenu();
             initReveal();
             initFaq();

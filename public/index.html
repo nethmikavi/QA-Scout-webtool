@@ -86,9 +86,40 @@
                     </ul>
                 </section>
 
-                <div id="loading" class="hidden">
-                    <div class="spinner"></div>
-                    <p>Scanning website, please wait…</p>
+                <div id="loading" class="hidden" role="status" aria-live="polite">
+                    <div class="scan-card">
+                        <div class="scan-visual" aria-hidden="true">
+                            <div class="mock-bar"><i></i><i></i><i></i><span class="mock-url" id="mockUrl">your-site.com</span></div>
+                            <div class="mock-body">
+                                <span class="sk h"></span><span class="sk w90"></span><span class="sk w70"></span>
+                                <div class="mock-cards"><span class="sk box"></span><span class="sk box"></span><span class="sk box"></span></div>
+                                <span class="sk w80"></span><span class="sk w55"></span>
+                                <div class="beam"></div>
+                            </div>
+                        </div>
+                        <div class="scan-info">
+                            <div class="scan-title">Scanning <b id="scanHost">your site</b></div>
+                            <div class="scan-progress">
+                                <div class="scan-track"><div class="scan-fill" id="scanFill"></div></div>
+                                <span class="scan-pct" id="scanPct">0%</span>
+                            </div>
+                            <p class="scan-status" id="scanStatus">Starting the scan...</p>
+                            <ul class="scan-steps" id="scanSteps">
+                                <li><span class="s-ic"></span>Fetching the page</li>
+                                <li><span class="s-ic"></span>Checking links</li>
+                                <li><span class="s-ic"></span>Security headers</li>
+                                <li><span class="s-ic"></span>SEO tags</li>
+                                <li><span class="s-ic"></span>Accessibility</li>
+                                <li><span class="s-ic"></span>Performance</li>
+                                <li><span class="s-ic"></span>Building your report</li>
+                            </ul>
+                            <p class="scan-tip" id="scanTip"></p>
+                            <div class="scan-foot">
+                                <span class="scan-time"><span id="scanTime">0s</span> elapsed &middot; estimated progress</span>
+                                <button type="button" id="cancelScanBtn" class="scan-cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="results" class="hidden">

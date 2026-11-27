@@ -285,11 +285,13 @@ async function runScan() {
     resultsDiv.classList.add('hidden');
     outputDiv.innerHTML = '';
 
+    window.__scanAbort = new AbortController();
     try {
         const response = await fetch('/api/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
+            body: JSON.stringify({ url }),
+            signal: window.__scanAbort.signal
         });
 
         let data;
@@ -387,7 +389,9 @@ async function runScan() {
     } catch (err) {
         loadingDiv.classList.add('hidden');
         resultsDiv.classList.remove('hidden');
-        outputDiv.innerHTML = `<p style="color: #d1242f;">${escapeHtml(err.message || 'Failed to connect to the server.')}</p>`;
+        outputDiv.innerHTML = err && err.name === 'AbortError'
+            ? '<p style="color:#6b6455;">Scan cancelled. Enter a URL and run it again whenever you are ready.</p>'
+            : `<p style="color: #d1242f;">${escapeHtml(err.message || 'Failed to connect to the server.')}</p>`;
     } finally {
         scanBtn.disabled = false;
     }
